@@ -1,6 +1,6 @@
 {
   "name": "sous-chef",
-  "description": "Claude plans, delegates, and tastes every plate. Codex CLI does the knife work. A Claude Code plugin for the orchestrator/implementer split: /fire hands specced implementation to GPT-5.5 or GLM-5.2, /pass runs cross-model review, /simmer loops the worker under Claude's judgment, /mise sets up the kitchen.",
+  "description": "Claude plans, delegates, and tastes every plate. Codex CLI does the knife work. A Claude Code plugin for the orchestrator/implementer split: /fire hands specced implementation to GPT-5.5 or GLM-5.2, /taste runs cross-model review, /simmer loops the worker under Claude's judgment, /mise sets up the kitchen.",
   "version": "0.1.0",
   "author": {
     "name": "Tomas Cupr"

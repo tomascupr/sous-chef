@@ -11,7 +11,7 @@ doc, or a measured comparison — collected via a multi-source research sweep on
   points the same way: in one 36-round blind head-to-head (Blake Crosley's test, as
   relayed by a dev.to roundup), Claude Code's output was rated cleaner 67% of the time
   vs Codex's 25%. Two models that disagree that often make useful reviewers for each
-  other — provided findings are validated before applying, which is why `/pass` has a
+  other — provided findings are validated before applying, which is why `/taste` has a
   mandatory validation step.
   Source: [Claude Code vs Codex — 500 Reddit developers](https://dev.to/_46ea277e677b888e0cd13/claude-code-vs-codex-2026-what-500-reddit-developers-really-think-31pb).
 - **Cost asymmetry.** In madewithlove's measured delegation setup, "Codex did about
@@ -114,7 +114,7 @@ doc, or a measured comparison — collected via a multi-source research sweep on
   one-line change cost 13,584 combined tokens) — hence the "cook it yourself" threshold
   in `/fire`. ([madewithlove](https://madewithlove.com/blog/claude-up-front-codex-in-the-back/))
 
-## Why `/pass` validates findings before presenting them
+## Why `/taste` validates findings before presenting them
 
 - Field report after ~20 plugin-driven reviews: Codex reviews ran shallower than Opus
   reviews on the same diffs, ~3 of 20 failed silently, and adversarial mode "doesn't
@@ -123,7 +123,7 @@ doc, or a measured comparison — collected via a multi-source research sweep on
   ([mejba.me](https://www.mejba.me/blog/codex-plugin-claude-code-adversarial-review))
 - The fix (via [nathanonn](https://www.nathanonn.com/)): a validation step where Claude
   "analyzes each comment against the actual codebase" before applying anything —
-  adopted wholesale as step 3 of `/pass`.
+  adopted wholesale as step 3 of `/taste`.
 - Debate cap: two rounds, then take over — convergence between independent reviews is
   the signal; extended argument has diminishing returns.
   ([claude-codex-collab](https://github.com/AlessioZazzarini/claude-codex-collab))
@@ -133,7 +133,7 @@ doc, or a measured comparison — collected via a multi-source research sweep on
 - OpenAI's own README on its stop-time review gate: it "can create a long-running
   Claude/Codex loop and may drain usage limits quickly."
   [codex-plugin-cc#248](https://github.com/openai/codex-plugin-cc/issues/248) documents
-  the rewake loop under transient failures. `/pass` on demand keeps the human deciding
+  the rewake loop under transient failures. `/taste` on demand keeps the human deciding
   when a second opinion is worth the tokens.
 
 ## Why GLM-5.2 ships as two templates (and not through the coding plan in Codex)

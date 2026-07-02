@@ -5,7 +5,11 @@ description: Mise en place — one-time setup for the sous-chef workflow. Verifi
 
 # Mise en place — set up the kitchen before service
 
-Run the checks in order. Report each as pass/fixed/needs-user. Never overwrite an existing file without asking.
+Open with the plan so the user knows the shape: "Four checks, at most a couple of
+questions, one ~30s smoke test." Run the checks in order, report each as
+pass/fixed/needs-user, and **batch any questions into a single AskUserQuestion call**
+rather than interrogating one at a time. Never overwrite an existing file without
+asking.
 
 ## 1. Codex CLI present and current
 
@@ -13,8 +17,13 @@ Run the checks in order. Report each as pass/fixed/needs-user. Never overwrite a
 codex --version
 ```
 
-- Missing → tell the user: `npm i -g @openai/codex` or `brew install codex`, and stop here.
-- Version below 0.134.0 → warn: this plugin uses file-per-profile config (`~/.codex/sous-chef.config.toml`). Older Codex only reads `[profiles.*]` tables from config.toml, which 0.134+ silently ignores — ask the user to upgrade rather than shipping a config that does nothing.
+- Missing → offer to install it for the user (`npm i -g @openai/codex` or
+  `brew install codex`); if they decline or it fails, stop here and tell them to
+  re-run `/sous-chef:mise` after installing.
+- Version below 0.134.0 → warn: this plugin uses file-per-profile config
+  (`~/.codex/sous-chef.config.toml`). Older Codex only reads `[profiles.*]` tables
+  from config.toml, which 0.134+ silently ignores — ask the user to upgrade rather
+  than shipping a config that does nothing.
 
 ## 2. Auth
 
@@ -22,8 +31,12 @@ codex --version
 codex login status
 ```
 
-- Not logged in → ask the user to run `codex login` themselves (it's interactive).
-- Check `[ -n "$OPENAI_API_KEY" ]`: if set, note that sous-chef invocations use `env -u OPENAI_API_KEY` so delegated runs bill the ChatGPT subscription, not the API key. If the user prefers API billing, they can remove that prefix in their usage.
+- Not logged in → tell the user to run `codex login` in a separate terminal (it's an
+  interactive browser flow), then re-run `/sous-chef:mise`. **Stop here** — the
+  remaining steps end in a smoke test that would fail confusingly without auth.
+- Check `[ -n "$OPENAI_API_KEY" ]`: if set, note that sous-chef invocations use
+  `env -u OPENAI_API_KEY` so delegated runs bill the ChatGPT subscription, not the
+  API key. If the user prefers API billing, they can remove that prefix in their usage.
 
 ## 3. Delegation profile
 
@@ -33,7 +46,14 @@ If `~/.codex/sous-chef.config.toml` does not exist, copy it from the plugin:
 cp "${CLAUDE_PLUGIN_ROOT}/codex/sous-chef.config.toml" ~/.codex/sous-chef.config.toml
 ```
 
-If it exists, leave it alone and say so. The profile intentionally sets only execution-safety settings (approval policy, sandbox mode, network access) — model and reasoning effort fall through to the user's `~/.codex/config.toml`, which is where they should live. If the user has no model configured there, suggest `model = "gpt-5.5"` and `model_reasoning_effort = "xhigh"` for implementation-grade delegation.
+If it exists, diff it against the plugin's copy: identical → say so and move on;
+different → show the diff and ask whether to keep theirs or refresh (this is also the
+update path when the plugin ships profile changes). The profile intentionally sets
+only execution-safety settings (approval policy, sandbox mode, network access) —
+model and reasoning effort fall through to the user's `~/.codex/config.toml`, which
+is where they should live. If the user has no model configured there, suggest
+`model = "gpt-5.5"` and `model_reasoning_effort = "xhigh"` for implementation-grade
+delegation.
 
 ## 4. Repo AGENTS.md — the standing orders
 
@@ -42,34 +62,43 @@ Codex rebuilds its instruction chain from `AGENTS.md` on every run, including no
 - If the current repo has no root `AGENTS.md`: offer to create one from `${CLAUDE_PLUGIN_ROOT}/templates/AGENTS.template.md`, filled in from what you can read in the repo (real build/test/lint commands, real entry points — verify each command exists in package.json/Makefile/pyproject before writing it).
 - If `AGENTS.md` exists: leave it.
 - Bridge it for Claude: the repo's `CLAUDE.md` should contain the line `@AGENTS.md` so both models read the same standards. Add the line (or create a minimal CLAUDE.md containing it) with the user's OK. A symlink `CLAUDE.md -> AGENTS.md` also works if there's no Claude-specific content.
+- Note: fire needs a git repo with at least one commit — if this directory isn't one, say so now.
 
 ## 5. GLM-5.2 (optional second implementer)
 
-Ask whether the user wants GLM-5.2 available as an opt-in implementer, and which key
-they have:
+Skip this step silently unless `ZAI_API_KEY` or `OPENROUTER_API_KEY` is set in the
+environment, or the user asked about GLM. When it applies:
 
-- **Z.ai coding-plan key (`ZAI_API_KEY`)** → route A, Claude-headless worker:
-  `mkdir -p ~/.sous-chef/glm-claude && cp "${CLAUDE_PLUGIN_ROOT}/templates/glm-claude-settings.json" ~/.sous-chef/glm-claude/settings.json`
-- **OpenRouter key (`OPENROUTER_API_KEY`)** → route B, Codex profile:
-  copy `${CLAUDE_PLUGIN_ROOT}/codex/sous-chef-glm.config.toml` to `~/.codex/` — the
-  file is self-contained (it carries its own `[model_providers.openrouter]` block).
-- **Neither** → skip; fire stays GPT-5.5-only.
+- **`ZAI_API_KEY` set** → route A, Claude-headless worker: if
+  `~/.sous-chef/glm-claude/settings.json` does not exist,
+  `mkdir -p ~/.sous-chef/glm-claude && cp "${CLAUDE_PLUGIN_ROOT}/templates/glm-claude-settings.json" ~/.sous-chef/glm-claude/settings.json`;
+  if it exists, leave it and say so.
+- **`OPENROUTER_API_KEY` set** → route B, Codex profile: if
+  `~/.codex/sous-chef-glm.config.toml` does not exist, copy it from
+  `${CLAUDE_PLUGIN_ROOT}/codex/` — the file is self-contained (it carries its own
+  `[model_providers.openrouter]` block); if it exists, leave it and say so.
 
 Details and invocations: `${CLAUDE_PLUGIN_ROOT}/skills/fire/references/glm-routes.md`.
 
 ## 6. Routing policy (optional, recommended once per machine)
 
-Offer to append the division-of-labor block from `${CLAUDE_PLUGIN_ROOT}/templates/CLAUDE.routing.md` to the user's `~/.claude/CLAUDE.md` — it's ~10 lines and teaches every future session when to fire and when to cook. Skip if a "sous-chef" section is already there. If the user has no global CLAUDE.md at all, offer `${CLAUDE_PLUGIN_ROOT}/templates/CLAUDE.global.example.md` as a slim starting point instead.
+Offer to append the division-of-labor block from `${CLAUDE_PLUGIN_ROOT}/templates/CLAUDE.routing.md` to the user's `~/.claude/CLAUDE.md` — it's ~10 lines and teaches every future session when to fire and when to cook. Skip if a "sous-chef" section is already there. If the user has no global CLAUDE.md at all, offer `${CLAUDE_PLUGIN_ROOT}/templates/CLAUDE.global.example.md` as a slim starting point instead — its Environment section is placeholder text they must edit to match their machine. If their CLAUDE.md already mandates a pre-commit review or commit gate, point out that simmer makes per-lap checkpoint commits and taste is a second review layer — let them decide how the pieces stack before they collide mid-loop.
 
 ## 7. Smoke test
 
 ```bash
-env -u OPENAI_API_KEY codex exec --profile sous-chef --sandbox read-only \
-  -c model_reasoning_effort=low "Reply with exactly: MISE OK" 2>/dev/null
+test -f ~/.codex/sous-chef.config.toml && \
+env -u OPENAI_API_KEY codex exec --profile sous-chef --skip-git-repo-check \
+  -c model_reasoning_effort=low "Reply with exactly: MISE OK" > /tmp/mise-smoke.log 2>&1; \
+tail -5 /tmp/mise-smoke.log; grep -m1 'sandbox:' /tmp/mise-smoke.log
 ```
 
-Expect `MISE OK` in the output. Use `low`, not `minimal` — minimal effort 400s when the
-user's config enables tools like `web_search`. On failure, rerun without `2>/dev/null`
-and show the error with the likely cause (auth, profile syntax, version).
+Success = the output contains `MISE OK` AND the banner's `sandbox:` line says
+`workspace-write` — that second check proves the profile actually loaded, because
+**Codex silently ignores a missing profile file** and would happily run under the
+user's own defaults. Use effort `low`, not `minimal` (minimal 400s when the user's
+config enables tools like `web_search`); `--skip-git-repo-check` keeps the test
+working outside a git repo. On failure, show the log tail and the likely cause
+(auth, profile syntax, version).
 
 Finish with a one-screen summary: what passed, what was installed, what the user still needs to do.

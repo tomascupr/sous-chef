@@ -1,6 +1,6 @@
 ---
 name: fire
-description: Delegates a well-specified implementation task to Codex CLI (GPT-5.5, or opt-in GLM-5.2) running in the background. Use when the user asks to hand work to Codex/GLM, or when an implementation task is substantial and spec-able — multi-file features, mechanical refactors, migrations, bulk boilerplate, test scaffolding. Not for small surgical fixes, ambiguous design work, or anything that needs conversation context that won't fit in a written ticket.
+description: Delegates a well-specified implementation task to Codex CLI (or opt-in GLM-5.2) running in the background. Use when the user asks to hand work to Codex/GLM ("have codex do it", "delegate this", "fire it"), or offer it when an implementation task is substantial and spec-able — multi-file features, mechanical refactors, migrations, bulk boilerplate, test scaffolding. Not for small surgical fixes, ambiguous design work, or anything that needs conversation context that won't fit in a written ticket. Never fire without telling the user first.
 ---
 
 # Fire — hand the ticket to the sous-chef
@@ -19,9 +19,18 @@ Cook it yourself when ANY of these hold:
 - The approach is still ambiguous — resolve design questions first, then fire.
 - The task depends on conversation context that can't be written into a ticket.
 
+If the user didn't explicitly ask for delegation, propose it in one line rather than firing silently — delegation sends code to another vendor and spends their quota.
+
+## Preflight (all deterministic, run before writing the ticket)
+
+1. **Git repo with at least one commit** — `git rev-parse HEAD` succeeds. Codex refuses non-repos by default, and diff review needs a baseline. If not: tell the user to `git init` / make an initial commit first.
+2. **Profile exists** — `test -f ~/.codex/sous-chef.config.toml`. This check is load-bearing: Codex **silently ignores a missing profile** (exit 0, runs under the user's own defaults — possibly no sandbox at all). If missing: stop and offer `/sous-chef:mise`.
+3. **Snapshot the tree** — if `git status --porcelain` is non-empty, warn the user their uncommitted changes will share the tree with Codex's edits (suggest committing/stashing first), and either way save the baseline: `git diff > "$JOB/pre-fire.patch"; git status --short > "$JOB/pre-fire.status"`. At plating you review Codex's delta against this baseline, not the raw diff.
+4. **Job directory** — mint one per fire: `JOB=$(mktemp -d "$SCRATCHPAD/fire-XXXXXX")` (`$SCRATCHPAD` = your session scratchpad directory; substitute its absolute path). Never share ticket/result/log paths between jobs — concurrent or sequential runs on fixed paths clobber each other and can serve a stale result as a fresh success.
+
 ## Writing the ticket
 
-Write the ticket to a file in your scratchpad directory using the template in [references/ticket-template.md](references/ticket-template.md). The contract is XML-block-structured because Codex follows explicit contracts far better than prose requests:
+Write the ticket to `$JOB/ticket.md` using the template in [references/ticket-template.md](references/ticket-template.md). The contract is XML-block-structured because Codex follows explicit contracts far better than prose requests:
 
 - `<task>` — the concrete job, with enough repo context to orient a fresh agent.
 - `<done_when>` — checkable success criteria. Declarative beats imperative: give success criteria, not step-by-step instructions.
@@ -35,50 +44,45 @@ Write the ticket to a file in your scratchpad directory using the template in [r
 
 Repo-level standards (build commands, conventions, do-not-touch areas) belong in the repo's `AGENTS.md`, which Codex reads automatically on every run — don't duplicate them on the ticket. Run `/sous-chef:mise` once per repo to set that up.
 
-## Choosing the implementer
-
-Default is GPT-5.5 via the `sous-chef` Codex profile. If the user says "with GLM" /
-"use GLM" (or has told you to route bulk work there), fire the same ticket at GLM-5.2
-instead via whichever route `/sous-chef:mise` configured — see
-[references/glm-routes.md](references/glm-routes.md). Never switch models silently;
-say which sous-chef is cooking.
-
 ## Firing
 
-Run Codex in the background — never in the foreground. Long runs will be killed by the Bash tool's timeout ceiling in the foreground; backgrounded jobs run to completion and you get re-invoked when they exit.
-
-In the snippets below, `$SCRATCHPAD` stands for your session scratchpad/temp directory — substitute its absolute path; it is not a real environment variable.
+Run from the repo root (workspace-write scopes writes to the working directory), in the background — never in the foreground, where the Bash timeout ceiling kills long runs.
 
 ```
-Bash (run_in_background: true):
+Bash (run_in_background: true), cwd = repo root:
 env -u OPENAI_API_KEY codex exec --profile sous-chef \
-  --output-last-message "$SCRATCHPAD/codex-result.md" \
-  - < "$SCRATCHPAD/ticket.md" > "$SCRATCHPAD/codex-job.log" 2>&1
+  --output-last-message "$JOB/result.md" \
+  - < "$JOB/ticket.md" > "$JOB/job.log" 2>&1
 ```
 
 Notes on the invocation:
 - `--profile sous-chef` loads `~/.codex/sous-chef.config.toml` (workspace-write sandbox, approvals never — it never pauses for input that will never arrive). Model and reasoning effort deliberately fall through to the user's `~/.codex/config.toml` defaults.
 - `env -u OPENAI_API_KEY` forces subscription auth. If the variable is set, Codex silently bills the API key instead.
 - Prompt goes via stdin (`- <`) to avoid shell-quoting damage to the ticket.
-- `--output-last-message` writes only the final message to a file; the log gets the progress stream.
+
+**Then tell the user, in one or two lines:** what was delegated and to which model (read `model` from `~/.codex/config.toml` — don't assert a model you didn't check), that it typically takes 5–20+ minutes at high reasoning effort, where the log lives (`$JOB/job.log`), and that they can cancel anytime.
+
+To route the ticket to GLM-5.2 instead (user opt-in), see [references/glm-routes.md](references/glm-routes.md) — same ticket, different worker invocation.
 
 ## While it cooks
 
-Do NOT poll. Polling loops against a running Codex job are the documented way to incinerate quota while producing nothing. Either:
-- End your turn or work on something else — the backgrounded job re-invokes you when it exits; or
-- If you must watch for a condition, arm a single Monitor with an until-loop on the job log that matches terminal states (completion AND error signatures), not a poll loop.
+Do NOT poll — polling loops against a running Codex job are the documented way to incinerate quota while producing nothing. Work on something else or end your turn; the backgrounded job re-invokes you when it exits. If you must watch for a condition, arm a single Monitor with an until-loop on `$JOB/job.log` matching terminal states (completion AND error signatures like `ERROR:`, `stream disconnected`), not a poll loop.
+
+**If the user cancels:** kill the background task, then run `git status` + `git diff` — the workspace-write worker may have left a half-applied change. Show the user what's there and let them decide keep or revert.
 
 ## Plating — when the job exits
 
-1. Read `codex-result.md` and run `git status` + `git diff`.
-2. Review the diff like a hawk. Codex is a competent implementer that makes wrong assumptions without checking — that is exactly the failure mode you're here to catch.
-3. Run the `<verification>` commands yourself. Codex's claims are not evidence; command output is.
-4. Then either:
+1. **Check the outcome before trusting the plate.** If the job exited non-zero, or `$JOB/result.md` is missing or empty, the run failed — read the tail of `$JOB/job.log`, show the user the error verbatim (auth expiry and quota exhaustion look like this), and offer one rerun or taking over yourself. Never present a missing result as a clean outcome. (MCP transport errors near the top of the log are usually harmless noise from the user's Codex-side MCP servers — the real signal is the last lines.)
+2. Glance at the log's opening banner: its `sandbox:` line is ground truth for what actually ran. If it isn't `workspace-write`, say so.
+3. Read `$JOB/result.md`, then review Codex's actual delta: `git status`/`git diff` compared against `$JOB/pre-fire.patch` — don't attribute the user's own WIP to Codex.
+4. Review the diff carefully, line by line. Codex is a competent implementer that makes wrong assumptions without checking — that is exactly the failure mode you're here to catch.
+5. Run the `<verification>` commands yourself. Codex's claims are not evidence; command output is.
+6. Then either:
    - Accept — summarize what shipped and what you verified.
-   - Send ONE delta instruction on the same thread: `codex exec resume --last - < delta.md` (same background pattern). Send only what changed, not the whole ticket again.
+   - Send ONE delta: a fresh fire (new `$JOB`, short ticket that states what the previous run got wrong, quotes the failing output, and scopes the fix). Do NOT use `codex exec resume` — resumed sessions rebuild config from the user's defaults, silently dropping the sandbox, and `--last` may grab a different session entirely. Fresh run + state on disk is the reliable path.
 
 Cap follow-ups at two rounds. If it's still not right after two deltas, take over and finish it yourself — further debate has diminishing returns.
 
 ## If Codex is unavailable
 
-If `codex` is missing, unauthenticated, or the profile doesn't exist, say so and offer to run `/sous-chef:mise` — don't silently implement the task yourself without telling the user the delegation failed.
+If `codex` is missing, unauthenticated, or the profile doesn't exist (preflight step 2), say so and offer to run `/sous-chef:mise` — don't silently implement the task yourself without telling the user the delegation failed.

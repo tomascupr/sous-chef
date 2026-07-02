@@ -1,9 +1,9 @@
 # GLM-5.2 delegation routes
 
 Two ways to route a fired ticket to GLM-5.2 instead of GPT-5.5. `/sous-chef:mise`
-configures one (or both); fire uses whichever is installed. The ticket is identical —
-only the worker invocation changes. As in the fire skill, `$SCRATCHPAD` stands for
-your session scratchpad directory — substitute its absolute path.
+configures one (or both); fire uses whichever is installed. The ticket, the preflight,
+the announce-to-user step, and the per-job directory (`$JOB`) are identical to a
+normal fire — only the worker invocation changes.
 
 ## Route A — Claude Code headless as the GLM worker (coding-plan quota)
 
@@ -13,13 +13,16 @@ marker: `~/.sous-chef/glm-claude/settings.json` exists. Requires `ZAI_API_KEY` i
 environment.
 
 ```
-Bash (run_in_background: true):
+Bash (run_in_background: true), cwd = repo root:
 env CLAUDE_CONFIG_DIR="$HOME/.sous-chef/glm-claude" \
     ANTHROPIC_AUTH_TOKEN="$ZAI_API_KEY" \
   claude -p --dangerously-skip-permissions \
-  < "$SCRATCHPAD/ticket.md" > "$SCRATCHPAD/glm-job.log" 2>&1
+  < "$JOB/ticket.md" > "$JOB/result.md" 2> "$JOB/job.log"
 ```
 
+- `claude -p` prints the final message to stdout — so `$JOB/result.md` plays the same
+  role as `--output-last-message` does on the Codex route; the progress stream lands
+  in `$JOB/job.log`. Plating works unchanged.
 - The isolated `CLAUDE_CONFIG_DIR` keeps the worker off your real Anthropic auth and
   global config; its settings.json pins `glm-5.2[1m]` and xhigh effort (which Z.ai's
   devpack docs map to GLM's "max" thinking level).
@@ -31,17 +34,21 @@ env CLAUDE_CONFIG_DIR="$HOME/.sous-chef/glm-claude" \
 
 ## Route B — Codex with OpenRouter (pay-per-token)
 
-Installed marker: `~/.codex/sous-chef-glm.config.toml` exists AND
-`[model_providers.openrouter]` is present in `~/.codex/config.toml`. Requires
-`OPENROUTER_API_KEY`. Same invocation as the default fire, different profile — and do
-NOT unset OPENAI_API_KEY-style vars here; OpenRouter needs its key:
+Installed marker: `~/.codex/sous-chef-glm.config.toml` exists (the file is
+self-contained — it carries its own provider block). Requires `OPENROUTER_API_KEY`.
+Same invocation as the default fire, different profile — and do NOT prefix
+`env -u OPENAI_API_KEY` here; OpenRouter authenticates via its own env key:
 
 ```
-Bash (run_in_background: true):
+Bash (run_in_background: true), cwd = repo root:
 codex exec --profile sous-chef-glm \
-  --output-last-message "$SCRATCHPAD/codex-result.md" \
-  - < "$SCRATCHPAD/ticket.md" > "$SCRATCHPAD/codex-job.log" 2>&1
+  --output-last-message "$JOB/result.md" \
+  - < "$JOB/ticket.md" > "$JOB/job.log" 2>&1
 ```
+
+Preflight for this route: `test -f ~/.codex/sous-chef-glm.config.toml` — Codex
+silently ignores a missing profile and would run under the user's defaults with the
+wrong model and no OpenRouter provider.
 
 ## Dead ends (do not suggest)
 
@@ -53,6 +60,7 @@ codex exec --profile sous-chef-glm \
 
 ## When GLM is worth it
 
-GLM-5.2 slightly out-benches GPT-5.5 on SWE-bench Pro and Terminal-Bench and costs a
-fraction per token, but burns ~3.3x the tokens per task and Z.ai uptime can be spotty.
-Good fit: bulk mechanical work where cost dominates. Poor fit: deadline-critical runs.
+GLM-5.2 slightly out-benchmarks GPT-5.5 on SWE-bench Pro and Terminal-Bench and costs
+a fraction per token, but burns ~3.3x the tokens per task and Z.ai uptime can be
+spotty. Good fit: bulk mechanical work where cost dominates. Poor fit:
+deadline-critical runs.
