@@ -27,7 +27,7 @@ Mint a job dir (`JOB=$(mktemp -d "$SCRATCHPAD/taste-XXXXXX")`, where `$SCRATCHPA
 
 ```
 Bash (run_in_background: true), cwd = repo root:
-env -u OPENAI_API_KEY codex exec --profile sous-chef --sandbox read-only \
+env -u CODEX_API_KEY -u CODEX_ACCESS_TOKEN codex exec --profile sous-chef --sandbox read-only \
   --output-last-message "$JOB/result.md" \
   - < "$JOB/review-prompt.md" > "$JOB/job.log" 2>&1
 ```

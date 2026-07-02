@@ -43,7 +43,7 @@ only memory.
 For each iteration, until the goal passes or the budget is spent:
 
 1. **Fire the worker** — a fresh backgrounded `codex exec` (same invocation pattern as
-   `/sous-chef:fire`, including `env -u OPENAI_API_KEY`, `--profile sous-chef`, and a
+   `/sous-chef:fire`, including `env -u CODEX_API_KEY -u CODEX_ACCESS_TOKEN`, `--profile sous-chef`, and a
    fresh per-lap job dir — never reuse result/log paths between laps). The prompt is
    the loop contract plus: lap number, the judge's verdict from last lap (what failed
    and why, verbatim command output), and the instruction to do ONE coherent unit of

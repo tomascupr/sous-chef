@@ -93,12 +93,33 @@ doc, or a measured comparison — collected via a multi-source research sweep on
   unset by default" — model/effort belong in the user's `config.toml`.
   ([codex-plugin-cc](https://github.com/openai/codex-plugin-cc))
 
-## Why `env -u OPENAI_API_KEY`
+## Why `env -u CODEX_API_KEY -u CODEX_ACCESS_TOKEN` (and NOT `-u OPENAI_API_KEY`)
 
-- With the variable set, "Codex CLI silently uses the API key instead of subscription
-  auth — and you get billed." Documented by
-  [claude-codex-collab](https://github.com/AlessioZazzarini/claude-codex-collab),
-  whose bridge unsets it for the same reason.
+- Subscription auth is fully supported for headless runs: "`codex exec` reuses saved
+  CLI authentication by default"
+  ([non-interactive docs](https://developers.openai.com/codex/noninteractive)), and
+  "For sign in with ChatGPT sessions, Codex refreshes tokens automatically during use
+  before they expire" — including a built-in 401 refresh-and-retry mid-run
+  ([auth docs](https://developers.openai.com/codex/auth),
+  [CI/CD auth](https://developers.openai.com/codex/auth/ci-cd-auth)). Some models on
+  ChatGPT plans (GPT-5.5 among them) are listed as not available under API-key auth
+  at all ([pricing](https://developers.openai.com/codex/pricing)).
+- The env vars that DO override the login in `codex exec` are `CODEX_API_KEY`
+  (exec-only, "takes precedence over any other auth method") and
+  `CODEX_ACCESS_TOKEN` — so those are what fire unsets to pin the run to the
+  subscription.
+- The widely-circulated advice to unset `OPENAI_API_KEY` (e.g. in
+  [claude-codex-collab](https://github.com/AlessioZazzarini/claude-codex-collab)) is
+  based on 2025-era behavior. Fixed November 2025: "The CLI no longer implicitly logs
+  in using the env variable. You now must explicitly log in using
+  `codex login --api-key`"
+  ([openai/codex#2341](https://github.com/openai/codex/issues/2341), closed by an
+  OpenAI maintainer). Worse than useless now: unsetting it breaks custom model
+  providers that use `env_key = "OPENAI_API_KEY"`.
+- Quota exhaustion and hard auth expiry both surface as exec exit 1 with the detail
+  only in the stream ("You've hit your usage limit…" / persistent 401) — which is why
+  fire's plating step reads the log tail on failure and names the two cases for the
+  user.
 
 ## Why the ticket contract is XML blocks
 

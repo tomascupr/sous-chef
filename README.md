@@ -136,10 +136,12 @@ plugin nor ralph-loop covers: a delegated implementer inside the loop with an
 independent judge outside it.
 
 **What does this cost me?** Two subscriptions: any Claude plan for Claude Code, and a
-ChatGPT plan for Codex (`codex login` — no API key needed; fire even unsets
-`OPENAI_API_KEY` so you don't get silently billed per-token). Delegation overhead is
-~5–7k Claude tokens per round trip, which is why `/fire` refuses tasks small enough to
-cook directly.
+ChatGPT plan for Codex — `codex login`, no API key needed. Subscription auth is the
+first-class path for headless runs: `codex exec` reuses the saved login, tokens
+auto-refresh even mid-run, and fire unsets the two env vars (`CODEX_API_KEY`,
+`CODEX_ACCESS_TOKEN`) that could silently switch a run to per-token billing.
+Delegation overhead is ~5–7k Claude tokens per round trip, which is why `/fire`
+refuses tasks small enough to cook directly.
 
 **What do I see while it cooks?** When Claude fires, it tells you what was delegated,
 the expected duration (typically 5–20+ minutes at high reasoning effort), and the log

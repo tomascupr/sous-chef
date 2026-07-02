@@ -36,8 +36,8 @@ env CLAUDE_CONFIG_DIR="$HOME/.sous-chef/glm-claude" \
 
 Installed marker: `~/.codex/sous-chef-glm.config.toml` exists (the file is
 self-contained — it carries its own provider block). Requires `OPENROUTER_API_KEY`.
-Same invocation as the default fire, different profile — and do NOT prefix
-`env -u OPENAI_API_KEY` here; OpenRouter authenticates via its own env key:
+Same invocation as the default fire, different profile — the `env -u` prefix is
+unnecessary here (OpenRouter authenticates via its own `OPENROUTER_API_KEY`):
 
 ```
 Bash (run_in_background: true), cwd = repo root:

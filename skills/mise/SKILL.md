@@ -31,12 +31,18 @@ codex --version
 codex login status
 ```
 
-- Not logged in → tell the user to run `codex login` in a separate terminal (it's an
-  interactive browser flow), then re-run `/sous-chef:mise`. **Stop here** — the
-  remaining steps end in a smoke test that would fail confusingly without auth.
-- Check `[ -n "$OPENAI_API_KEY" ]`: if set, note that sous-chef invocations use
-  `env -u OPENAI_API_KEY` so delegated runs bill the ChatGPT subscription, not the
-  API key. If the user prefers API billing, they can remove that prefix in their usage.
+- Not logged in (exit 1) → tell the user to run `codex login` in a separate terminal
+  (it's an interactive browser flow), then re-run `/sous-chef:mise`. **Stop here** —
+  the remaining steps end in a smoke test that would fail confusingly without auth.
+- Logged in with ChatGPT (the normal, recommended setup — no API key needed): all
+  good; delegated runs bill the subscription and tokens auto-refresh, even mid-run.
+- Logged in with an API key instead: warn that usage bills at per-token API rates and
+  some models available on ChatGPT plans (GPT-5.5 included) may not be available at
+  all under API-key auth.
+- Check `[ -n "$CODEX_API_KEY" ] || [ -n "$CODEX_ACCESS_TOKEN" ]`: these two env vars
+  override the login in `codex exec`, which is why sous-chef invocations unset them —
+  mention it if either is set. (`OPENAI_API_KEY` is harmless; current Codex doesn't
+  read it for auth.)
 
 ## 3. Delegation profile
 
@@ -88,7 +94,7 @@ Offer to append the division-of-labor block from `${CLAUDE_PLUGIN_ROOT}/template
 
 ```bash
 test -f ~/.codex/sous-chef.config.toml && \
-env -u OPENAI_API_KEY codex exec --profile sous-chef --skip-git-repo-check \
+env -u CODEX_API_KEY -u CODEX_ACCESS_TOKEN codex exec --profile sous-chef --skip-git-repo-check \
   -c model_reasoning_effort=low "Reply with exactly: MISE OK" > /tmp/mise-smoke.log 2>&1; \
 tail -5 /tmp/mise-smoke.log; grep -m1 'sandbox:' /tmp/mise-smoke.log
 ```

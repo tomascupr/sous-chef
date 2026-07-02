@@ -50,14 +50,14 @@ Run from the repo root (workspace-write scopes writes to the working directory),
 
 ```
 Bash (run_in_background: true), cwd = repo root:
-env -u OPENAI_API_KEY codex exec --profile sous-chef \
+env -u CODEX_API_KEY -u CODEX_ACCESS_TOKEN codex exec --profile sous-chef \
   --output-last-message "$JOB/result.md" \
   - < "$JOB/ticket.md" > "$JOB/job.log" 2>&1
 ```
 
 Notes on the invocation:
 - `--profile sous-chef` loads `~/.codex/sous-chef.config.toml` (workspace-write sandbox, approvals never — it never pauses for input that will never arrive). Model and reasoning effort deliberately fall through to the user's `~/.codex/config.toml` defaults.
-- `env -u OPENAI_API_KEY` forces subscription auth. If the variable is set, Codex silently bills the API key instead.
+- `env -u CODEX_API_KEY -u CODEX_ACCESS_TOKEN` pins the run to the user's `codex login` (ChatGPT subscription) auth — those two are the only env vars that override it in `codex exec`, and if either is set the run silently bills per-token instead. (`OPENAI_API_KEY` is NOT read for auth by current Codex, and unsetting it would break custom providers that use it as their `env_key`.)
 - Prompt goes via stdin (`- <`) to avoid shell-quoting damage to the ticket.
 
 **Then tell the user, in one or two lines:** what was delegated and to which model (read `model` from `~/.codex/config.toml` — don't assert a model you didn't check), that it typically takes 5–20+ minutes at high reasoning effort, where the log lives (`$JOB/job.log`), and that they can cancel anytime.
@@ -72,7 +72,7 @@ Do NOT poll — polling loops against a running Codex job are the documented way
 
 ## Plating — when the job exits
 
-1. **Check the outcome before trusting the plate.** If the job exited non-zero, or `$JOB/result.md` is missing or empty, the run failed — read the tail of `$JOB/job.log`, show the user the error verbatim (auth expiry and quota exhaustion look like this), and offer one rerun or taking over yourself. Never present a missing result as a clean outcome. (MCP transport errors near the top of the log are usually harmless noise from the user's Codex-side MCP servers — the real signal is the last lines.)
+1. **Check the outcome before trusting the plate.** If the job exited non-zero, or `$JOB/result.md` is missing or empty, the run failed — read the tail of `$JOB/job.log`, show the user the error verbatim, and offer one rerun or taking over yourself. Two errors worth naming for the user: "You've hit your usage limit" means wait for the plan's 5-hour window to reset (or escalate plans); a persistent `401` means their `codex login` needs redoing. Never present a missing result as a clean outcome. (MCP transport errors near the top of the log are usually harmless noise from the user's Codex-side MCP servers — the real signal is the last lines.)
 2. Glance at the log's opening banner: its `sandbox:` line is ground truth for what actually ran. If it isn't `workspace-write`, say so.
 3. Read `$JOB/result.md`, then review Codex's actual delta: `git status`/`git diff` compared against `$JOB/pre-fire.patch` — don't attribute the user's own WIP to Codex.
 4. Review the diff carefully, line by line. Codex is a competent implementer that makes wrong assumptions without checking — that is exactly the failure mode you're here to catch.
