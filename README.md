@@ -2,7 +2,7 @@
 
 ![MIT](https://img.shields.io/badge/license-MIT-blue) ![Claude Code plugin](https://img.shields.io/badge/Claude_Code-plugin-d97757) ![Codex CLI ≥ 0.134](https://img.shields.io/badge/Codex_CLI-%E2%89%A50.134-black)
 
-**Fable 5 orchestrates and reviews; GPT-5.5 xhigh implements. Your head chef doesn't chop onions.**
+**Fable 5 orchestrates and reviews; GPT-5.5 or GLM 5.2 implements. Your head chef doesn't chop onions.**
 
 A Claude Code plugin that splits coding between two frontier models the way a kitchen
 splits work. Claude plans, writes the ticket, reviews every diff line by line, and
