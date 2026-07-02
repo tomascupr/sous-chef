@@ -2,7 +2,7 @@
 
 Every load-bearing decision in sous-chef traces to a documented incident, an official
 doc, or a measured comparison - collected via a multi-source research sweep on
-2026-07-02. Corrections welcome via issues.
+2026-07-02, updated 2026-07-03. Corrections welcome via issues.
 
 ## Why an orchestrator/implementer split at all
 
@@ -148,6 +148,46 @@ doc, or a measured comparison - collected via a multi-source research sweep on
 - Debate cap: two rounds, then take over - convergence between independent reviews is
   the signal; extended argument has diminishing returns.
   ([claude-codex-collab](https://github.com/AlessioZazzarini/claude-codex-collab))
+- Fixing is deliberately a separate skill (`/refire`) rather than taste applying its
+  own findings: the reviewer stays read-only by CLI flag (role separation that a
+  prompt can't guarantee), and the review-to-fix boundary is exactly where a human can
+  step in à la carte - or not, inside a `/serve` they ordered.
+
+## Why fast mode is surfaced, not inherited silently
+
+- Codex fast mode ("Fast mode increases supported model speed by 1.5x and consumes
+  credits at a higher rate... 2.5x the Standard rate for GPT-5.5 and 2x the Standard
+  rate for GPT-5.4",
+  [speed docs](https://developers.openai.com/codex/speed)) is enabled by a single
+  user-level key (`service_tier = "fast"`; the `fast_mode` feature flag defaults to
+  true) and applies only under ChatGPT sign-in.
+- The tier flows into headless `codex exec` runs: `service_tier` lives in the core
+  config shared by all frontends, and exec loads the user's config.toml by default
+  (source-verified in openai/codex `codex-rs/core`; the docs don't state it either
+  way). A user who turned fast on for interactive latency would otherwise pay 2.5x on
+  every background delegation - a silent drain on the shared 5-hour window.
+- But pinning standard in the shipped profile would override a deliberate user choice,
+  and a 1.5x speedup does compound across a serial serve pipeline. So `/mise` surfaces
+  the tradeoff and offers a commented `service_tier = "default"` line in the profile;
+  the user decides once. ("default" is the explicit standard-routing sentinel; it is
+  source-verified but undocumented, so treat it as version-pinned knowledge.)
+
+## Why serve and simmer stay two commands
+
+- The command name is the consent. Serve is a bounded promise (at most 5 Codex runs,
+  no branch); simmer creates a branch, makes checkpoint commits, and may run for
+  hours. One merged command would either silently escalate into that or stop to ask
+  mid-flow, which is the interruption serve exists to remove. Our own UX review found
+  simmer's original trigger caught casual phrases like "keep going until tests pass"
+  and converted them into loops nobody ordered; the fix was explicit intent, and
+  merging would reopen it.
+- Exit-condition type is the taxonomy. Anthropic's loops guidance categorizes loops
+  by trigger and exit condition
+  ([Getting started with loops](https://claude.com/blog/getting-started-with-loops));
+  serve exits when a pipeline completes, simmer exits when a command passes. Different
+  promise, different name.
+- The bridge exists anyway: a serve that exhausts its budget on goal-shaped leftovers
+  offers to continue as a simmer.
 
 ## Why the review gate is NOT included
 
@@ -155,7 +195,9 @@ doc, or a measured comparison - collected via a multi-source research sweep on
   Claude/Codex loop and may drain usage limits quickly."
   [codex-plugin-cc#248](https://github.com/openai/codex-plugin-cc/issues/248) documents
   the rewake loop under transient failures. `/taste` on demand keeps the human deciding
-  when a second opinion is worth the tokens.
+  when a second opinion is worth the tokens. (`/serve` runs taste as a stage of a pass
+  the user explicitly ordered, under a hard run budget - what this project rejects is
+  review firing on every stop, unbounded, not review inside an ordered pipeline.)
 
 ## Why GLM-5.2 ships as two templates (and not through the coding plan in Codex)
 

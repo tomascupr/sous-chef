@@ -12,6 +12,11 @@
 # Never pause for approval - a delegated run has no human to answer prompts.
 approval_policy = "never"
 
+# Uncomment to keep delegated runs on the standard tier when your config.toml enables
+# fast mode (fast burns credits at 2.5x on GPT-5.5 for a 1.5x speedup, and it flows
+# into background exec runs). /sous-chef:mise offers this choice during setup.
+# service_tier = "default"
+
 # Write access confined to the workspace. Reviews override this per-call with
 # `--sandbox read-only` (CLI flags beat profile settings).
 sandbox_mode = "workspace-write"

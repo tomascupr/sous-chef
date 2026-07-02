@@ -61,6 +61,13 @@ is where they should live. If the user has no model configured there, suggest
 `model = "gpt-5.5"` and `model_reasoning_effort = "xhigh"` for implementation-grade
 delegation.
 
+Also check `~/.codex/config.toml` for `service_tier = "fast"`. Fast mode flows into
+delegated background runs and burns credits at 2.5x (GPT-5.5) for a 1.5x speedup -
+paying double on a shared quota for latency a background run mostly doesn't need.
+If set, say so and offer to add `service_tier = "default"` to the sous-chef profile
+(there's a commented line ready in the file); their interactive sessions stay fast
+either way. Fold this into the batched question round.
+
 ## 4. Repo AGENTS.md - the standing orders
 
 Codex rebuilds its instruction chain from `AGENTS.md` on every run, including non-interactive `codex exec`. That makes it the one place repo standards reach the sous-chef automatically.
