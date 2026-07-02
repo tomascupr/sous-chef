@@ -1,6 +1,6 @@
 ---
 name: serve
-description: Runs the whole line autonomously - implement via Codex, cross-review, fix the confirmed findings, verify, report once at the end. Use when the user wants a task done end to end ("serve this", "just get it done", "implement and review it") rather than driving fire/taste/refire station by station. Announce once before starting; do not stop for input between stages unless a hard blocker appears.
+description: Runs the whole line autonomously - implement via Codex, cross-review, fix confirmed findings, verify, report once at the end. Use when the user wants a task done end to end ("serve this", "just get it done", "implement and review it"). Announces once up front; stops between stages only for hard blockers.
 ---
 
 # Serve - the whole line, one order

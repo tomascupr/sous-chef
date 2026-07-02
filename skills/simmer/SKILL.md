@@ -1,6 +1,6 @@
 ---
 name: simmer
-description: Runs a loop - Codex implements in fresh iterations while Claude verifies and judges each lap against a machine-checkable goal, until the goal passes or a budget runs out. For goal-shaped work expected to take multiple attempts ("make the suite green", "get the benchmark under X"); for one task done end to end, /sous-chef:serve is the right shape. Use only when the user explicitly asks for a loop ("simmer this", "loop on it until the tests pass", "iterate until green", "run a loop overnight") - it creates a branch and makes checkpoint commits, so confirm the contract before starting. Not for tasks whose success only a human can judge.
+description: Runs a goal loop - Codex implements fresh laps while Claude verifies each against a machine-checkable goal, until it passes or the budget runs out. Use only when the user explicitly asks for a loop ("simmer this", "loop until tests pass", "iterate until green") - it creates a branch and checkpoint commits, so confirm the contract first.
 ---
 
 # Simmer - reduce until done

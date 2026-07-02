@@ -1,6 +1,6 @@
 ---
 name: fire
-description: Delegates a well-specified implementation task to Codex CLI (or opt-in GLM-5.2) running in the background. Use when the user asks to hand work to Codex/GLM ("have codex do it", "delegate this", "fire it"), or offer it when an implementation task is substantial and spec-able - multi-file features, mechanical refactors, migrations, bulk boilerplate, test scaffolding. Not for small surgical fixes, ambiguous design work, or anything that needs conversation context that won't fit in a written ticket. Never fire without telling the user first.
+description: Delegates a well-specified implementation task to Codex CLI (or opt-in GLM-5.2) in the background. Use when the user says to hand work to Codex ("have codex do it", "fire it"), or offer it for substantial spec-able work - multi-file features, refactors, migrations, boilerplate. Not for small fixes or ambiguous design; never fire silently.
 ---
 
 # Fire - hand the ticket to the sous-chef

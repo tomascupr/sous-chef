@@ -1,6 +1,6 @@
 ---
 name: mise
-description: Mise en place - one-time setup for the sous-chef workflow. Verifies Codex CLI is installed and authenticated, installs the delegation profile, scaffolds AGENTS.md in the current repo, and offers the routing policy for CLAUDE.md. Use when the user asks to set up sous-chef, when /sous-chef:fire fails because Codex or the profile is missing, or in a repo that hasn't been set up yet.
+description: Mise en place - one-time setup. Verifies Codex CLI and auth, installs the delegation profile, scaffolds AGENTS.md, and offers the routing policy. Use when the user asks to set up sous-chef, or when another sous-chef skill fails because Codex or the profile is missing.
 ---
 
 # Mise en place - set up the kitchen before service

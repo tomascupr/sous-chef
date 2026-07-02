@@ -1,6 +1,6 @@
 ---
 name: refire
-description: Turns validated review findings into a scoped fix run. Use after /sous-chef:taste when the user says to fix the findings, apply the review, or refire it. Takes the CONFIRMED findings (or a review the user pastes), fires a fix ticket at the implementer, then re-verifies each finding at its cited location. Not for new feature work; that is a fresh /sous-chef:fire.
+description: Turns confirmed findings from a taste into one scoped fix run, then re-verifies each finding at its cited location. Use after /sous-chef:taste when the user says to fix the findings, apply the review, or refire it. Not for new feature work - that is a fresh /sous-chef:fire.
 ---
 
 # Refire - the plate failed the pass, send it back

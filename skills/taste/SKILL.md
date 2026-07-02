@@ -1,6 +1,6 @@
 ---
 name: taste
-description: Cross-model code review - Codex reviews the current diff read-only, then Claude validates every finding against the actual codebase before presenting it. Use when the user asks for a review, a second opinion, or a cross-model check of a diff or branch. On-demand only - don't run it automatically before commits; offer it when a diff is large or risky and let the user decide.
+description: Cross-model code review - Codex reviews the diff read-only, then Claude validates every finding against the code before presenting it. Use when the user asks for a review, a second opinion, or a cross-model check. On-demand only - offer it for large or risky diffs; the user decides.
 ---
 
 # Taste - the chef tastes every plate before it leaves the kitchen
