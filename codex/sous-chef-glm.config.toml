@@ -1,0 +1,29 @@
+# sous-chef GLM profile — GLM-5.2 via OpenRouter (route B)
+# Install as: ~/.codex/sous-chef-glm.config.toml
+# Used as: codex exec --profile sous-chef-glm ...
+#
+# Requires OPENROUTER_API_KEY in the environment (pay-per-token; the GLM Coding Plan
+# CANNOT be used through Codex — Z.ai has no Responses API endpoint).
+#
+# Self-contained: the provider definition lives right here in the profile, so
+# installing this one file is the whole setup.
+
+model_provider = "openrouter"
+model = "z-ai/glm-5.2"
+model_context_window = 1000000
+model_auto_compact_token_limit = 900000
+model_reasoning_effort = "xhigh"
+approval_policy = "never"
+sandbox_mode = "workspace-write"
+
+[model_providers.openrouter]
+name = "OpenRouter"
+base_url = "https://openrouter.ai/api/v1"
+env_key = "OPENROUTER_API_KEY"
+wire_api = "responses"
+stream_idle_timeout_ms = 600000
+request_max_retries = 4
+
+[sandbox_workspace_write]
+# Flip to true if delegated tasks need to install dependencies.
+network_access = false

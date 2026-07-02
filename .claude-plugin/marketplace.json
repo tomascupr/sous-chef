@@ -1,0 +1,14 @@
+{
+  "name": "sous-chef",
+  "description": "Claude orchestrates and reviews; Codex CLI implements. Your head chef doesn't chop onions.",
+  "owner": {
+    "name": "Tomas Cupr"
+  },
+  "plugins": [
+    {
+      "name": "sous-chef",
+      "source": "./",
+      "description": "Claude orchestrates and reviews; Codex CLI implements. Your head chef doesn't chop onions."
+    }
+  ]
+}

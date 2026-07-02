@@ -1,0 +1,21 @@
+# sous-chef delegation profile
+# Install as: ~/.codex/sous-chef.config.toml   (Codex >= 0.134 file-per-profile format;
+# [profiles.*] tables inside config.toml are ignored by modern Codex)
+#
+# Used as: codex exec --profile sous-chef ...
+#
+# Deliberately minimal: only execution safety lives here. Model and reasoning effort
+# fall through to your ~/.codex/config.toml defaults (recommended: model = "gpt-5.5",
+# model_reasoning_effort = "xhigh"). Per-repo pins belong in a trusted project's
+# .codex/config.toml.
+
+# Never pause for approval — a delegated run has no human to answer prompts.
+approval_policy = "never"
+
+# Write access confined to the workspace. Reviews override this per-call with
+# `--sandbox read-only` (CLI flags beat profile settings).
+sandbox_mode = "workspace-write"
+
+[sandbox_workspace_write]
+# Flip to true if delegated tasks need to install dependencies.
+network_access = false
