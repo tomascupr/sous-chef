@@ -9,7 +9,7 @@
 # model_reasoning_effort = "xhigh"). Per-repo pins belong in a trusted project's
 # .codex/config.toml.
 
-# Never pause for approval — a delegated run has no human to answer prompts.
+# Never pause for approval - a delegated run has no human to answer prompts.
 approval_policy = "never"
 
 # Write access confined to the workspace. Reviews override this per-call with

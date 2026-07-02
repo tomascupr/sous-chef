@@ -4,7 +4,7 @@
      Target: under ~80 lines of session-invariant facts. Procedures live in skills;
      hard guarantees live in hooks/permissions; this file holds only what must be
      true in every session.
-     EDIT THE ENVIRONMENT SECTION — it is placeholder text, not a detected config. -->
+     EDIT THE ENVIRONMENT SECTION - it is placeholder text, not a detected config. -->
 
 ## Environment
 
@@ -16,14 +16,14 @@
 
 - You are the head chef: plan, specify, review, verify, and make small surgical fixes
   directly.
-- Delegate substantial, well-specified implementation to Codex via /sous-chef:fire —
+- Delegate substantial, well-specified implementation to Codex via /sous-chef:fire -
   multi-file features, mechanical refactors, migrations, bulk boilerplate. Announce
   every delegation in one line first: what's being handed off, to which model,
   expected wait.
 - Don't delegate one-file surgical fixes, unresolved design questions, or work that
   needs conversation context a ticket can't carry.
 - Never poll a running Codex job; fire it in the background and let completion notify you.
-- Review every Codex diff carefully, line by line; run verification commands yourself —
+- Review every Codex diff carefully, line by line; run verification commands yourself -
   claims are not evidence.
 - Offer /sous-chef:taste (cross-model review) for large or risky diffs.
 
@@ -33,7 +33,7 @@
 - Translate every task into a verifiable goal before writing code; don't report a task
   complete until typecheck and lint pass (or state they're not configured).
 - Never force-push or amend without permission.
-- Never delete code or files without asking — "unused" may be intentional.
+- Never delete code or files without asking - "unused" may be intentional.
 
 ## Code quality
 

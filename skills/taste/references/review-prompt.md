@@ -9,7 +9,7 @@ Read the diff AND enough surrounding code to judge it in context. Do not modify 
 </task>
 
 <grounding_rules>
-Ground every finding in code you actually read during this run — cite file and line.
+Ground every finding in code you actually read during this run - cite file and line.
 Quote the exact code that is wrong. If a point is an inference rather than something
 you verified, label it INFERENCE. Do not report a finding you cannot anchor to a
 specific location.
@@ -17,7 +17,7 @@ specific location.
 
 <calibration>
 Match your expectations to the scale and criticality of this codebase. A small tool
-does not need circuit breakers, observability stacks, or enterprise patterns — do not
+does not need circuit breakers, observability stacks, or enterprise patterns - do not
 flag their absence. Flag only issues that would cause real defects, data loss, security
 problems, or maintenance pain in THIS codebase as it exists.
 </calibration>
@@ -25,11 +25,11 @@ problems, or maintenance pain in THIS codebase as it exists.
 <structured_output_contract>
 Your final message must be exactly:
 
-VERDICT: [SHIP | FIX FIRST] — one-line reason
+VERDICT: [SHIP | FIX FIRST] - one-line reason
 
 FINDINGS (ordered most severe first; empty section if none):
 For each finding:
-- [severity: blocker|major|minor] file:line — one-sentence defect statement
+- [severity: blocker|major|minor] file:line - one-sentence defect statement
   EVIDENCE: the quoted code and why it fails; concrete inputs/state -> wrong outcome
   FIX: the minimal change that resolves it
 
@@ -37,7 +37,7 @@ Do not pad. Zero findings with a SHIP verdict is a valid and useful result.
 </structured_output_contract>
 ```
 
-## Adversarial addendum — production-critical code only
+## Adversarial addendum - production-critical code only
 
 Append inside `<task>` when reviewing auth, payments, data storage, or external API boundaries:
 
