@@ -6,7 +6,8 @@
 
 A Claude Code plugin for the two-model kitchen: Claude plans the menu, writes the
 ticket, and tastes every plate before it leaves the kitchen. Codex CLI (GPT-5.5 at
-max reasoning; GLM-5.2 opt-in) does the knife work — in a sandbox, in the background,
+`xhigh`, its highest reasoning effort; GLM-5.2 opt-in) does the knife work — in a
+sandbox, in the background,
 with no say over what ships. Spend Claude tokens on judgment and Codex tokens on bulk:
 in the measured setup this pattern is built on, [Codex did ~20x the implementation
 work](https://madewithlove.com/blog/claude-up-front-codex-in-the-back/) per
