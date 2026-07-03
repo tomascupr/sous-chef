@@ -60,7 +60,7 @@ Notes on the invocation:
 - `env -u CODEX_API_KEY -u CODEX_ACCESS_TOKEN` pins the run to the user's `codex login` (ChatGPT subscription) auth - those two are the only env vars that override it in `codex exec`, and if either is set the run silently bills per-token instead. (`OPENAI_API_KEY` is NOT read for auth by current Codex, and unsetting it would break custom providers that use it as their `env_key`.)
 - Prompt goes via stdin (`- <`) to avoid shell-quoting damage to the ticket.
 
-**Then tell the user, in one or two lines:** what was delegated and to which model (read `model` from `~/.codex/config.toml` - don't assert a model you didn't check), that it typically takes 5–20+ minutes at high reasoning effort, where the log lives (`$JOB/job.log`), and that they can cancel anytime.
+**Then tell the user, in one or two lines:** what was delegated and to which model (read `model` from `~/.codex/config.toml` - don't assert a model you didn't check), that it typically takes 5–20+ minutes at high reasoning effort, a paste-ready `tail -f "$JOB/job.log"` (absolute path) to watch it cook, the ticket at `$JOB/ticket.md` for what was ordered, and that they can cancel anytime.
 
 To route the ticket to GLM-5.2 instead (user opt-in), see [references/glm-routes.md](references/glm-routes.md) - same ticket, different worker invocation.
 
@@ -78,7 +78,9 @@ Do NOT poll - polling loops against a running Codex job are the documented way t
 4. Review the diff carefully, line by line. Codex is a competent implementer that makes wrong assumptions without checking - that is exactly the failure mode you're here to catch.
 5. Run the `<verification>` commands yourself. Codex's claims are not evidence; command output is.
 6. Then either:
-   - Accept - summarize what shipped and what you verified.
+   - Accept - summarize what shipped and what you verified, plus the token usage
+     from the log's closing summary if it carries one - quota spend is otherwise
+     invisible to the user.
    - Send ONE delta: a fresh fire (new `$JOB`, short ticket that states what the previous run got wrong, quotes the failing output, and scopes the fix). Do NOT use `codex exec resume` - resumed sessions rebuild config from the user's defaults, silently dropping the sandbox, and `--last` may grab a different session entirely. Fresh run + state on disk is the reliable path.
 
 Cap follow-ups at two rounds. If it's still not right after two deltas, take over and finish it yourself - further debate has diminishing returns.

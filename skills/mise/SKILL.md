@@ -1,6 +1,6 @@
 ---
 name: mise
-description: Mise en place - one-time setup. Verifies Codex CLI and auth, installs the delegation profile, scaffolds AGENTS.md, and offers the routing policy. Use when the user asks to set up sous-chef, or when another sous-chef skill fails because Codex or the profile is missing.
+description: Mise en place - setup and health check. Verifies Codex CLI and auth, installs the delegation profile, scaffolds AGENTS.md, and offers the routing policy. Re-run anytime, and after plugin updates to refresh the profile. Use when the user asks to set up sous-chef, or when another sous-chef skill fails because Codex or the profile is missing.
 ---
 
 # Mise en place - set up the kitchen before service
@@ -138,7 +138,7 @@ them decide how the pieces stack before they collide mid-loop.
 test -f ~/.codex/sous-chef.config.toml && \
 env -u CODEX_API_KEY -u CODEX_ACCESS_TOKEN codex exec --profile sous-chef --skip-git-repo-check \
   -c model_reasoning_effort=low "Reply with exactly: MISE OK" > /tmp/mise-smoke.log 2>&1; \
-tail -5 /tmp/mise-smoke.log; grep -m1 'sandbox:' /tmp/mise-smoke.log
+tail -5 /tmp/mise-smoke.log; grep -m1 'model:' /tmp/mise-smoke.log; grep -m1 'sandbox:' /tmp/mise-smoke.log
 ```
 
 Success = the output contains `MISE OK` AND the banner's `sandbox:` line says
@@ -149,4 +149,4 @@ config enables tools like `web_search`); `--skip-git-repo-check` keeps the test
 working outside a git repo. On failure, show the log tail and the likely cause
 (auth, profile syntax, version).
 
-Finish with a one-screen summary: what passed, what was installed, what the user still needs to do.
+Finish with a one-screen summary: what passed, what was installed, which model and effort delegated runs will use (the banner's `model:` line is ground truth for the model; effort falls through to `~/.codex/config.toml` - the smoke test pins its own to low), and what the user still needs to do.

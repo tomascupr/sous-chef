@@ -75,6 +75,9 @@ inside a repo:
 /sous-chef:mise
 ```
 
+`/mise` is idempotent - re-run it anytime as a health check, and after a plugin
+update to refresh the installed profile.
+
 ## How the split works
 
 ```text

@@ -29,7 +29,9 @@ them.
 
 - Announce ONCE before stage 1: the task, the model, and that this is a full serve
   (typically 2-3 Codex runs, expect 15-45 minutes at high reasoning effort). Then run
-  the pipeline without asking anything between stages.
+  the pipeline without asking anything between stages; a one-line tick as each stage
+  completes ("fire plated, checks green - tasting now") keeps a long serve legible.
+  No-asking is the contract, not silence.
 - Only interrupt the user for hard blockers: a failed run with an error they must act
   on (auth, quota), verification still red after stage 1's delta (and any surgical
   fix of your own), a finding that survived its refire, or preflight failures.
