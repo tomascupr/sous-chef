@@ -1,6 +1,6 @@
 ---
 name: taste
-description: Cross-model code review - Codex reviews the diff read-only, then Claude validates every finding against the code before presenting it. Use when the user asks for a review, a second opinion, or a cross-model check. On-demand only - offer it for large or risky diffs; the user decides.
+description: Cross-model code review - Codex reviews the diff read-only, then Claude validates every finding against the code before presenting it. Use when the user asks for a review, a second opinion, or a cross-model check. Offer it for large or risky diffs; invoke it directly only when the routing policy is autonomous.
 ---
 
 # Taste - the chef tastes every plate before it leaves the kitchen
@@ -62,4 +62,4 @@ Lead with the verdict (ship / fix first), then confirmed findings ordered by sev
 
 - If OpenAI's official `codex` plugin is installed, `/codex:review` also exists. `/sous-chef:taste` differs on purpose: pinned read-only sandbox, scale-calibrated prompt, and the mandatory validation pass that filters false positives.
 - Two models agreeing after independent review is a strong ship signal; divergence means design a discriminating test, not a longer argument.
-- Inside `/sous-chef:serve`, taste runs as a pipeline stage the user ordered up front - that is not the automatic pre-commit trigger this skill's description forbids.
+- Inside `/sous-chef:serve`, taste runs as a pipeline stage the user ordered up front - deliberate, budgeted scope, not an unbounded stop-time or pre-commit review gate.

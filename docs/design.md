@@ -49,6 +49,32 @@ doc, or a measured comparison - collected via a multi-source research sweep on
   (workspace-write for implementation, read-only for review) and `approval_policy`
   are process-level, not prompt-level.
 
+## Why two routing modes (manual vs autonomous)
+
+- Skills are model-invocable without a typed slash command; the frontmatter
+  description is the trigger surface Claude reads to decide when to invoke a skill.
+  Source: https://code.claude.com/docs/en/skills
+- Because the description is always-on, a prohibition written into it ("on-demand
+  only") blocks autonomous triggering in every session, and a CLAUDE.md policy that
+  contradicts its own skill's description degrades trigger reliability. Hence the
+  descriptions defer to "the routing policy" and the mode lives in exactly one place -
+  the block /mise installs in the user's CLAUDE.md. (First-party design reasoning
+  building on the skills doc above.)
+- The skillUsage gate: the harness lists a never-invoked skill name-only - invisible
+  to model triggering - until a skillUsage entry exists in ~/.claude.json. First-party
+  verification, 2026-07-03: content-independent, deterministic per user. Autonomous
+  setup therefore checks the entries and warns instead of assuming triggering works.
+- Autonomous is not unattended: "Permission rules are enforced by Claude Code, not by
+  the model" (https://code.claude.com/docs/en/permissions), so permission prompts
+  still gate every delegated `codex exec`. That is why autonomous setup offers an
+  explicit allow rule instead of pretending prose is enforcement.
+- Why manual is the recommended default: autonomous mode makes serve the default
+  handler for ordinary implementation requests - a spend decision on another vendor's
+  quota (see the ~20x cost asymmetry receipts above:
+  https://madewithlove.com/blog/claude-up-front-codex-in-the-back/) that users should
+  opt into knowingly. The one-line announcement survives in both modes; what changes
+  is who pulls the trigger.
+
 ## Why background-always, polling-never
 
 - [anthropics/claude-code#54143](https://github.com/anthropics/claude-code/issues/54143):

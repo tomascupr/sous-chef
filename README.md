@@ -5,10 +5,11 @@
 **Fable 5 orchestrates and reviews; GPT-5.5 or GLM 5.2 implements. Your head chef doesn't chop onions.**
 
 A Claude Code plugin that splits coding between two frontier models the way a kitchen
-splits work. Claude plans, writes the ticket, reviews every diff line by line, and
-re-runs the checks itself. Codex CLI does the implementation - in a sandbox, in the
-background, with no say over what ships. Spend Claude tokens on judgment and Codex
-tokens on bulk: in the measured setup this pattern is built on,
+splits work. Fable plans, writes the ticket, reviews every diff line by line, and
+re-runs the checks itself. Codex or GLM do the implementation - in a sandbox, in the
+background, with no say over what ships. The split is economic:
+Fable is the most expensive model on the line, so its tokens go to judgment and
+Codex or GLM tokens go to bulk. In the measured setup this pattern is built on,
 [Codex did ~20x the implementation work](https://madewithlove.com/blog/claude-up-front-codex-in-the-back/)
 per orchestration round trip, and two mid-tier subscriptions often beat one top-tier one.
 
@@ -55,7 +56,7 @@ what remains is goal-shaped, it offers to continue as a simmer.
 | `/sous-chef:fire` | Write the ticket, delegate one implementation run, review the diff against a pre-fire baseline, verify. |
 | `/sous-chef:taste` | Cross-model review, read-only. Claude validates every finding against the code and filters false positives before you see them. |
 | `/sous-chef:refire` | Turn the confirmed findings from a taste into one scoped fix run, then re-verify each finding at its cited location. |
-| `/sous-chef:mise` | Setup: Codex CLI + auth checks, delegation profile, `AGENTS.md` scaffold, routing policy. Once per machine, once per repo. |
+| `/sous-chef:mise` | Setup: Codex CLI + auth checks, delegation profile, `AGENTS.md` scaffold, routing policy (manual or autonomous). Once per machine, once per repo. |
 
 ## Install
 
@@ -97,7 +98,11 @@ you ── "/sous-chef:serve migrate auth" ──▶ CLAUDE (head chef)
 **Soft routing, not hard blocks.** A routing policy in `CLAUDE.md` plus skills that
 make delegation the path of least resistance. Claude still edits directly for small
 surgical fixes - hard-blocking Edit/Write provably makes agents route around the
-block instead. The boundary that IS hard: delegated Codex runs execute in a
+block instead. Manual routing is the default - you trigger the skills, and Claude
+offers them when they fit. Autonomous routing lets Claude invoke serve, fire, taste,
+and refire itself by task shape, announcing in one line before every delegation;
+simmer stays explicit-ask; choose the mode in `/mise`, and switch by re-running it.
+The boundary that IS hard: delegated Codex runs execute in a
 `workspace-write` sandbox with approvals off, and Codex reviews run `read-only`. (The
 optional GLM Claude-worker route has no OS sandbox underneath; its docs say to treat
 it accordingly - trusted repos or a branch/worktree only.)
@@ -158,7 +163,7 @@ anytime - Claude kills the job and shows you any partial changes to keep or reve
 
 **Does Claude stop writing code?** No. Small fixes, prototypes, and anything
 design-ambiguous stay with Claude - the routing rules themselves say so. Delegation
-is announced, never silent.
+is announced, never silent - in both routing modes.
 
 **Which models?** Whatever your `~/.codex/config.toml` says - the shipped profile
 pins only sandbox and approval policy. Recommended: `gpt-5.5` with
@@ -186,7 +191,7 @@ skills/taste/         cross-review skill + review prompt template
 skills/refire/        fix skill: confirmed findings become a scoped fix run
 skills/mise/          setup skill
 codex/                Codex profiles → ~/.codex/ (sous-chef default, sous-chef-glm)
-templates/            AGENTS.md scaffold, CLAUDE.md routing block, GLM worker config
+templates/            AGENTS.md scaffold, CLAUDE.md routing blocks (manual + autonomous), GLM worker config
 docs/design.md        the receipts: sources for every design decision
 ```
 
@@ -198,7 +203,8 @@ also have created (remove by hand if you're done with them):
 
 - `~/.codex/sous-chef.config.toml` and `~/.codex/sous-chef-glm.config.toml`
 - `~/.sous-chef/glm-claude/` (isolated GLM worker config)
-- a "Division of labor (sous-chef)" block appended to `~/.claude/CLAUDE.md`
+- a "Division of labor (sous-chef, ...)" routing block (manual or autonomous variant)
+  appended to `~/.claude/CLAUDE.md`
 - an `AGENTS.md` scaffold and/or `@AGENTS.md` import line in repos you set up (these
   are yours now - they're useful regardless of the plugin)
 

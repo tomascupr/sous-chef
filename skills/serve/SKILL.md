@@ -1,6 +1,6 @@
 ---
 name: serve
-description: Runs the whole line autonomously - implement via Codex, cross-review, fix confirmed findings, verify, report once at the end. Use when the user wants a task done end to end ("serve this", "just get it done", "implement and review it"). Announces once up front; stops between stages only for hard blockers.
+description: Runs the whole line autonomously - implement via Codex, cross-review, fix confirmed findings, verify, report once at the end. Use when the user wants a task done end to end ("serve this", "just get it done"), or as the default for spec-able implementation when the routing policy is autonomous. Announces once; stops only for hard blockers.
 ---
 
 # Serve - the whole line, one order

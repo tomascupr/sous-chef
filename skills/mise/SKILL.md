@@ -93,9 +93,44 @@ environment, or the user asked about GLM. When it applies:
 
 Details and invocations: `${CLAUDE_PLUGIN_ROOT}/skills/fire/references/glm-routes.md`.
 
-## 6. Routing policy (optional, recommended once per machine)
+## 6. Routing policy (pick a mode, once per machine)
 
-Offer to append the division-of-labor block from `${CLAUDE_PLUGIN_ROOT}/templates/CLAUDE.routing.md` to the user's `~/.claude/CLAUDE.md` - it's ~10 lines and teaches every future session when to fire and when to cook. Skip if a "sous-chef" section is already there. If the user has no global CLAUDE.md at all, offer `${CLAUDE_PLUGIN_ROOT}/templates/CLAUDE.global.example.md` as a slim starting point instead - its Environment section is placeholder text they must edit to match their machine. If their CLAUDE.md already mandates a pre-commit review or commit gate, point out that simmer makes per-lap checkpoint commits and taste is a second review layer - let them decide how the pieces stack before they collide mid-loop.
+Detection first: if `~/.claude/CLAUDE.md` exists, grep it for
+`Division of labor (sous-chef`. A heading with `manual routing` is manual, a heading
+with `autonomous routing` is autonomous, and a heading with no mode suffix is legacy
+manual. If a block exists, say which mode is installed and offer to switch by replacing
+that block with the other template; never append a duplicate. If the user declines,
+leave it.
+
+If no block exists, fold one routing question into the existing batched
+AskUserQuestion round:
+- Manual (recommended) - skills run when the user invokes them or accepts a one-line
+  offer; today's behavior.
+- Autonomous - Claude routes task-shaped work to serve/fire/taste/refire itself by
+  invoking the Skill tool, announcing in one line first; simmer stays explicit-ask.
+- Skip.
+
+Manual appends `${CLAUDE_PLUGIN_ROOT}/templates/CLAUDE.routing-manual.md`; autonomous
+appends `${CLAUDE_PLUGIN_ROOT}/templates/CLAUDE.routing-auto.md`. If the user has no
+global `CLAUDE.md` at all, offer `${CLAUDE_PLUGIN_ROOT}/templates/CLAUDE.global.example.md`
+as the slim starting point - and if the pick was autonomous, swap its manual routing
+block for the autonomous template so the installed mode matches the answer. Its
+Environment section is placeholder text they must edit to match their machine.
+
+If the autonomous block was installed, run the follow-ups:
+- Ask before adding `Bash(env -u CODEX_API_KEY -u CODEX_ACCESS_TOKEN codex exec*)` to
+  `permissions.allow` in `~/.claude/settings.json`, creating the file/key if absent.
+  Permission prompts still gate delegated runs; without this rule, autonomous routing
+  stops at a dialog on the first fire - noisier, not broken.
+- Read-only check `~/.claude.json` for `skillUsage` entries for the four skills
+  autonomous routing self-triggers - `sous-chef:serve`, `sous-chef:fire`,
+  `sous-chef:taste`, `sous-chef:refire`. Report any missing entries and tell the
+  user each missing skill needs one manual invocation to register. Never write
+  `~/.claude.json`.
+
+If their `CLAUDE.md` already mandates a pre-commit review or commit gate, point out
+that simmer makes per-lap checkpoint commits and taste is a second review layer - let
+them decide how the pieces stack before they collide mid-loop.
 
 ## 7. Smoke test
 

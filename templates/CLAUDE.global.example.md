@@ -4,6 +4,7 @@
      Target: under ~80 lines of session-invariant facts. Procedures live in skills;
      hard guarantees live in hooks/permissions; this file holds only what must be
      true in every session.
+     An autonomous routing variant exists; /sous-chef:mise installs or switches it.
      EDIT THE ENVIRONMENT SECTION - it is placeholder text, not a detected config. -->
 
 ## Environment
@@ -12,7 +13,7 @@
 **CLI tools:** [non-default tools Claude should prefer, e.g. eza (ls), rg (grep)]
 **Package managers:** [e.g. pnpm (Node), uv (Python), brew (system)]
 
-## Division of labor (sous-chef)
+## Division of labor (sous-chef, manual routing)
 
 - You are the head chef: plan, specify, review, verify, and make small surgical fixes
   directly.

@@ -1,4 +1,4 @@
-## Division of labor (sous-chef)
+## Division of labor (sous-chef, manual routing)
 
 - You are the head chef: plan, specify, review, verify, and make small surgical fixes
   directly.

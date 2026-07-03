@@ -1,6 +1,6 @@
 ---
 name: fire
-description: Delegates a well-specified implementation task to Codex CLI (or opt-in GLM-5.2) in the background. Use when the user says to hand work to Codex ("have codex do it", "fire it"), or offer it for substantial spec-able work - multi-file features, refactors, migrations, boilerplate. Not for small fixes or ambiguous design; never fire silently.
+description: Delegates a well-specified implementation task to Codex CLI (or opt-in GLM-5.2) in the background. Use when the user asks to hand work to Codex, or for substantial spec-able work - features, refactors, migrations, boilerplate; offer first unless the routing policy is autonomous. Not for small fixes or ambiguous design; never fire silently.
 ---
 
 # Fire - hand the ticket to the sous-chef
@@ -19,7 +19,7 @@ Cook it yourself when ANY of these hold:
 - The approach is still ambiguous - resolve design questions first, then fire.
 - The task depends on conversation context that can't be written into a ticket.
 
-If the user didn't explicitly ask for delegation, propose it in one line rather than firing silently - delegation sends code to another vendor and spends their quota.
+If the user didn't explicitly ask for delegation, propose it in one line rather than firing silently - delegation sends code to another vendor and spends their quota. Exception - an autonomous routing policy in the user's CLAUDE.md pre-authorizes the delegation; the one-line announcement then replaces the proposal: announce and fire.
 
 ## Preflight (all deterministic, run before writing the ticket)
 
