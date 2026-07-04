@@ -15,25 +15,10 @@ per orchestration round trip, and two mid-tier subscriptions often beat one top-
 
 ## What it looks like
 
-```text
-> /sous-chef:serve migrate the auth module off the deprecated session API
+![One /sous-chef:serve command in: Fable 5 plans, delegates to Codex or GLM, reviews the diff, validates findings, re-runs the checks itself, and plates a verified result. The worker never grades its own homework.](docs/sous-chef-flow.png)
 
-Claude   "Full serve at gpt-5.5: implement, cross-review, fix, verify.
-         2-3 Codex runs, ~15-45 min. I'll report when it's plated."
-Claude   writes the ticket - files to touch, files NOT to touch, done-when
-         criteria, verification commands - and fires it (background)
-Codex    implements. 11 files changed. Claims "all tests pass."
-Claude   reviews the diff line by line, re-runs pnpm test + tsc itself
-Codex    cross-reviews the diff read-only; 3 findings
-Claude   validates them against the code: 2 confirmed, 1 refuted
-Claude   refires the 2 confirmed findings as a scoped fix ticket
-Claude   re-verifies each finding at its cited location; checks green
-Claude   "Served: auth migration, 11 files, 42 tests pass, 2 review
-         findings fixed, 1 refuted. Two models agree; plate's yours."
-```
-
-One command in, one plated result out. Codex saying "tests pass" is a sentence;
-`pnpm test` output is a fact - Claude re-runs everything itself.
+Codex saying "tests pass" is a sentence; `pnpm test` output is a fact - Claude
+re-runs everything itself.
 
 ## Two commands
 
