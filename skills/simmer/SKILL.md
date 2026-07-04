@@ -50,10 +50,13 @@ If `.sous-chef/loop.md` already exists at invocation, this is a resume: on a tas
 match, switch to the recorded branch (it still existing is part of the match) and
 start where the loop definition starts - check state: run the check commands, and if
 the goal already passes, that's a done report, not a lap. Otherwise count the budget
-from the `## Laps` lines - a `fired` line with no verdict is a lap that died in
-flight, and it counts; lines before the most recent `pass` belong to a finished
-episode, so a regression after a pass counts laps fresh (the cycling guard still
-reads all of them). This is what lets a `/loop` trigger on the same machine re-enter
+from the `## Laps` lines - and prove the fate of any `fired` line with no verdict
+via its recorded job dir before counting it: a result file present means the run
+landed unjudged (judge it now, rewrite the line); a log still growing means the
+worker is still cooking - NEVER fire a second worker into the same tree, wait for
+it or surface it; neither means it died in flight, and it counts as spent. Lines
+before the most recent `pass` belong to a finished episode, so a regression after
+a pass counts laps fresh (the cycling guard still reads all of them). This is what lets a `/loop` trigger on the same machine re-enter
 a simmer. If the task differs or the branch is gone, the loop is stale: show it to
 the user before starting fresh.
 
@@ -67,9 +70,10 @@ For each iteration, until the goal passes or the budget is spent:
    the full contents of `.sous-chef/loop.md` (contract plus lap history) plus: lap
    number, the verbatim failing output from last lap, and the instruction to do ONE
    coherent unit of work, update `.sous-chef/progress.md` (never `loop.md` - that
-   file is the judge's), and stop. When you launch, append `lap N: fired` under
-   `## Laps` - the budget counts launches, not landings, so a crash mid-lap can't
-   un-spend a lap. Do not poll while it runs.
+   file is the judge's), and stop. When you launch, append `lap N: fired <abs job
+   dir>` under `## Laps` - the budget counts launches, not landings, so a crash
+   mid-lap can't un-spend a lap, and the job dir is how a later resume proves this
+   run's fate. Do not poll while it runs.
 2. **Verify yourself** - when it exits, first check the job outcome (non-zero exit or
    missing result file = failed lap: rewrite its line to `lap N: fail - run error:
    <cause>`, read the log tail, surface the error, and decide with the user whether
