@@ -79,8 +79,13 @@ Do NOT poll - polling loops against a running Codex job are the documented way t
 5. Run the `<verification>` commands yourself. Codex's claims are not evidence; command output is.
 6. Then either:
    - Accept - summarize what shipped and what you verified, plus the token usage
-     from the log's closing summary if it carries one - quota spend is otherwise
-     invisible to the user.
+     from the log's closing summary (the `tokens used` block near the end of
+     job.log) - quota spend is otherwise invisible to the user. Then add the job
+     to the running tab: append one line to `~/.sous-chef/ledger.jsonl`
+     (`mkdir -p ~/.sous-chef` first) of the form
+     `{"ts":"<UTC ISO-8601>","repo":"<repo basename>","skill":"fire","model":"<model from the log banner>","tokens":<total from the closing summary>}`.
+     If the log carries no token summary, skip the ledger line - never invent a
+     number.
    - Send ONE delta: a fresh fire (new `$JOB`, short ticket that states what the previous run got wrong, quotes the failing output, and scopes the fix). Do NOT use `codex exec resume` - resumed sessions rebuild config from the user's defaults, silently dropping the sandbox, and `--last` may grab a different session entirely. Fresh run + state on disk is the reliable path.
 
 Cap follow-ups at two rounds. If it's still not right after two deltas, take over and finish it yourself - further debate has diminishing returns.

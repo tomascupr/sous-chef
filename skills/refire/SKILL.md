@@ -53,6 +53,7 @@ Write `$JOB/ticket.md` with the fire template's XML blocks, specialized:
 
 Identical to fire: backgrounded profiled run from the repo root, announce it in one
 line (what, which model, expected minutes, log path, cancel offer), no polling.
+Fire's ledger line applies too, with `"skill":"refire"`.
 
 At plating, in addition to fire's outcome checks (exit code, result file present,
 sandbox banner):

@@ -159,6 +159,12 @@ auto-refresh even mid-run, and fire unsets the two env vars (`CODEX_API_KEY`,
 Delegation overhead is ~5-7k Claude tokens per round trip, which is why small tasks
 stay with Claude.
 
+**How do I see what I'm saving?** Every delegated run ends with a receipt - the
+worker's token count from the job log - and appends one JSON line to
+`~/.sous-chef/ledger.jsonl`. `/mise` prints the running tab (jobs to date, tokens
+kept off Claude), or sum it yourself:
+`jq -s '{jobs: length, tokens: (map(.tokens) | add)}' ~/.sous-chef/ledger.jsonl`.
+
 **What do I see while it cooks?** An announcement first: what was delegated, the
 expected duration (typically 5-20+ minutes per Codex run at high reasoning effort),
 and the log path. You keep working; Claude is re-invoked when the job exits. Cancel

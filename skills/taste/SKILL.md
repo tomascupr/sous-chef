@@ -56,7 +56,7 @@ Then, for EACH finding:
 
 ## 4. Report
 
-Lead with the verdict (ship / fix first), then confirmed findings ordered by severity, each with file:line, the failure scenario in one sentence, and the fix. Close with "N findings refuted on validation" if any. Do not apply fixes unless the user asked for that - the deliverable of a review is the assessment. If the user wants the confirmed findings fixed, that is `/sous-chef:refire`.
+Lead with the verdict (ship / fix first), then confirmed findings ordered by severity, each with file:line, the failure scenario in one sentence, and the fix. Close with "N findings refuted on validation" if any, plus the run's token usage from the log's closing summary - and add the run to the tab per fire's plating (same `~/.sous-chef/ledger.jsonl` line, with `"skill":"taste"`). Do not apply fixes unless the user asked for that - the deliverable of a review is the assessment. If the user wants the confirmed findings fixed, that is `/sous-chef:refire`.
 
 ## Notes
 

@@ -150,4 +150,4 @@ config enables tools like `web_search`); `--skip-git-repo-check` keeps the test
 working outside a git repo. On failure, show the log tail and the likely cause
 (auth, profile syntax, version).
 
-Finish with a one-screen summary: what passed, what was installed, which model and effort delegated runs will use (the banner's `model:` line is ground truth for the model; effort falls through to `~/.codex/config.toml` - the smoke test pins its own to low), and what the user still needs to do.
+Finish with a one-screen summary: what passed, what was installed, which model and effort delegated runs will use (the banner's `model:` line is ground truth for the model; effort falls through to `~/.codex/config.toml` - the smoke test pins its own to low), and what the user still needs to do. If `~/.sous-chef/ledger.jsonl` exists, close with the running tab - `jq -s '{jobs: length, tokens: (map(.tokens) | add)}' ~/.sous-chef/ledger.jsonl` - delegated jobs to date and the tokens they kept off Claude.
