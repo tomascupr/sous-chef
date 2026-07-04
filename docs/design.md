@@ -2,7 +2,7 @@
 
 Every load-bearing decision in sous-chef traces to a documented incident, an official
 doc, or a measured comparison - collected via a multi-source research sweep on
-2026-07-02, updated 2026-07-03. Corrections welcome via issues.
+2026-07-02, updated 2026-07-04. Corrections welcome via issues.
 
 ## Why an orchestrator/implementer split at all
 
@@ -286,12 +286,44 @@ doc, or a measured comparison - collected via a multi-source research sweep on
   loops ([openai/codex#25900](https://github.com/openai/codex/issues/25900)); fresh
   exec + disk state is immune.
 - **Budgets and blast radius**: iteration caps as the primary safety mechanism
-  (Anthropic's own ralph-loop plugin README), and write-access loops confined to a
-  branch after documented production incidents from unbounded write loops (Crosley).
+  ([Anthropic's own ralph-loop plugin README](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/ralph-loop)),
+  and write-access loops confined to a branch after documented production incidents
+  from unbounded write loops (Crosley).
 - Division of labor vs native primitives: `/goal` loops Claude-as-worker; the official
   `ralph-loop` plugin re-feeds the same prompt to the same Claude session. Simmer fills
   the documented gap: a delegated implementer inside the loop with an independent judge
   outside it.
+
+## Why orchestration state lives on disk (serve's state.md, taste's findings.md, simmer's loop files)
+
+- The worker had this discipline from day one - fresh context per run, state in files
+  and git ([ghuntley.com/ralph](https://ghuntley.com/ralph/)) - but the orchestrator's
+  own state (serve's run budget, the taste→refire findings handoff, simmer's lap
+  history) originally lived only in Claude's conversation, where compaction or a
+  session restart erases it. That this loses counters and handoffs mid-run is our
+  claim - no public incident to cite - but it is the same checkpoint-loss failure
+  class documented for long Codex sessions
+  ([openai/codex#25900](https://github.com/openai/codex/issues/25900)), and the fix
+  is the one the worker already got.
+- Scope follows lifetime: serve is a single-session bounded promise, so its `state.md`
+  lives in the session scratchpad (survives compaction, not session death - accepted);
+  simmer may outlive the session (the same-machine `/loop` composition - a cloud
+  `/schedule` clone never sees local state, so simmer doesn't claim it), so
+  `loop.md`/`progress.md` live in the repo - ignored, not committed, via
+  `.git/info/exclude`, giving durable state with zero footprint in diffs, checkpoint
+  commits, or the tree-hash no-progress guard (verified live 2026-07-04: invisible to
+  `git status --untracked-files=all` while worker changes stay visible; committed
+  state would have permanently defeated the guard).
+- Lap verdict lines are written by the judge, never the worker - the same
+  completion-decided-by-a-different-party property as `/goal`
+  ([/goal docs](https://code.claude.com/docs/en/goal)); worker claims are not
+  evidence, so worker-written files can't be the loop's memory of record. The
+  recorded signatures also upgrade no-progress detection from "same failure twice in
+  a row" to "any signature recurring across laps" - cycling detection - while the lap
+  cap stays the primary safety (Anthropic's ralph-loop README, above).
+- Findings persist at per-job paths (`$JOB/findings.md`), never a fixed "latest"
+  path - fire's stale-fixed-path rule (fixed paths serve stale results as fresh
+  successes) applies to the orchestrator's own artifacts too.
 
 ## The Karpathy grounding
 

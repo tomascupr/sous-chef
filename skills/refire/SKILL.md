@@ -5,15 +5,17 @@ description: Turns confirmed findings from a taste into one scoped fix run, then
 
 # Refire - the plate failed the pass, send it back
 
-A refire is a fix run with the review as its spec. The findings are already validated
-(that was taste's job), so the ticket is unusually precise: file, line, failure
-scenario, prescribed fix. Your job is to carry that precision through and then prove
-each finding is actually gone.
+A refire is a fix run whose spec already exists on disk: the `findings.md` a taste
+wrote after validating every finding. That is what makes the ticket unusually
+precise - file, line, failure scenario, prescribed fix, all confirmed against the
+code. Your job is to carry that precision through and then prove each finding is
+actually gone.
 
 ## Inputs
 
-- Default: the CONFIRMED findings from the most recent `/sous-chef:taste` in this
-  session.
+- Default: the `findings.md` the most recent `/sous-chef:taste` wrote - its report
+  names the path; inside `/sous-chef:serve` it is the `findings:` line in the run's
+  `state.md`. (Lost the path? It's the newest `findings.md` under `$SCRATCHPAD`.)
 - Alternative: a review the user pastes or points to. Validate unfamiliar findings
   against the code first (taste's step 3); never refire a finding you have not
   confirmed yourself.
@@ -39,7 +41,8 @@ Write `$JOB/ticket.md` with the fire template's XML blocks, specialized:
 
 - `<task>`: "Fix the review findings below. Each is confirmed against the code."
   Then one block per finding: file:line, the defect in one sentence, the evidence
-  (quoted code), and the prescribed fix.
+  (quoted code), and the prescribed fix. Taste's `findings.md` is already in this
+  shape - carry its blocks over near-verbatim.
 - `<done_when>`: every listed finding resolved at its cited location, plus the repo's
   verification commands passing.
 - `<files>`: touch only files named in the findings. Everything else is off limits.

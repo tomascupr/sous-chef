@@ -5,7 +5,7 @@ description: Cross-model code review - Codex reviews the diff read-only, then Cl
 
 # Taste - the chef tastes every plate before it leaves the kitchen
 
-A reviewer from a different training lineage doesn't share your blind spots - cross-model review reliably catches edge-case bugs that self-review misses. But raw Codex findings over-flag, so every finding gets validated before it reaches the user.
+A reviewer from a different training lineage doesn't share your blind spots - cross-model review reliably catches edge-case bugs that self-review misses. But raw Codex findings over-flag, so nothing reaches the user unvalidated: the deliverable of a taste is the CONFIRMED set, written to disk where a refire can pick it up.
 
 If `codex` is missing or `~/.codex/sous-chef.config.toml` doesn't exist, stop and offer `/sous-chef:mise` (Codex silently ignores a missing profile - check with `test -f`, don't rely on an error).
 
@@ -54,9 +54,11 @@ Then, for EACH finding:
 2. Label it CONFIRMED (you verified the failure scenario is real) or REFUTED (state why - guard exists upstream, dead path, intentional per repo conventions, wrong about the API).
 3. Drop REFUTED findings from the main report; mention only their count.
 
+Then write the CONFIRMED set to `$JOB/findings.md`: a header line (verdict, scope, refuted count), then one block per finding - severity, file:line, the defect in one sentence, the quoted evidence, the prescribed fix. Write it even when clean (`CONFIRMED: none`) so a clean taste is distinguishable from no taste. This file is the handoff to `/sous-chef:refire` - validated once, carried on disk, never reconstructed from memory.
+
 ## 4. Report
 
-Lead with the verdict (ship / fix first), then confirmed findings ordered by severity, each with file:line, the failure scenario in one sentence, and the fix. Close with "N findings refuted on validation" if any, plus the run's token usage from the log's closing summary - and add the run to the tab per fire's plating (same `~/.sous-chef/ledger.jsonl` line, with `"skill":"taste"`). Do not apply fixes unless the user asked for that - the deliverable of a review is the assessment. If the user wants the confirmed findings fixed, that is `/sous-chef:refire`.
+Lead with the verdict (ship / fix first), then confirmed findings ordered by severity, each with file:line, the failure scenario in one sentence, and the fix. Close with "N findings refuted on validation" if any, plus the run's token usage from the log's closing summary - and add the run to the tab per fire's plating (same `~/.sous-chef/ledger.jsonl` line, with `"skill":"taste"`). Name the absolute `$JOB/findings.md` path in the report. Do not apply fixes unless the user asked for that - the deliverable of a review is the assessment. If the user wants the confirmed findings fixed, that is `/sous-chef:refire`, and the findings file is its input.
 
 ## Notes
 
