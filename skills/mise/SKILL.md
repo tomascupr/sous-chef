@@ -78,9 +78,14 @@ Codex rebuilds its instruction chain from `AGENTS.md` on every run, including no
 - Bridge it for Claude: the repo's `CLAUDE.md` should contain the line `@AGENTS.md` so both models read the same standards. Add the line (or create a minimal CLAUDE.md containing it) with the user's OK. A symlink `CLAUDE.md -> AGENTS.md` also works if there's no Claude-specific content.
 - Note: fire needs a git repo with at least one commit - if this directory isn't one, say so now.
 
-## 5. GLM-5.2 (optional second implementer)
+## 5. Alternate workers (optional second implementer)
 
-Skip this step silently unless `ZAI_API_KEY` or `OPENROUTER_API_KEY` is set in the
+**Claude Sonnet 5 route (no setup):** nothing to install - `claude -p --model
+claude-sonnet-5` on the user's own subscription is always available as a
+fallback worker (see fire's `references/glm-routes.md`, Route C). Mention it
+only if the user asks, or when Codex auth/quota is the reason mise was re-run.
+
+**GLM-5.2:** skip silently unless `ZAI_API_KEY` or `OPENROUTER_API_KEY` is set in the
 environment, or the user asked about GLM. When it applies:
 
 - **`ZAI_API_KEY` set** → route A, Claude-headless worker: if

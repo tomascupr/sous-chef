@@ -182,7 +182,9 @@ pins only sandbox and approval policy. Recommended: `gpt-5.5` with
 ("fire with GLM"): it slightly out-benchmarks GPT-5.5 on SWE-bench Pro at a fraction
 of the per-token price, though ~3.3x more token-hungry. Two routes as templates
 (GLM Coding Plan via a headless Claude worker, or OpenRouter through Codex); `/mise`
-sets up whichever key you have. On the Claude side it's model-agnostic; built for and
+sets up whichever key you have. A third route needs no key at all: fire the
+ticket to Claude Sonnet 5 headless on your own Anthropic subscription - the
+built-in fallback when Codex hits its usage limit mid-serve. On the Claude side it's model-agnostic; built for and
 dogfooded with Fable 5.
 
 **Why not MCP?** Plain `codex exec` over Bash gives you the sandbox flag, the exit

@@ -1,6 +1,7 @@
-# GLM-5.2 delegation routes
+# Alternate worker delegation routes
 
-Two ways to route a fired ticket to GLM-5.2 instead of GPT-5.5. `/sous-chef:mise`
+Ways to route a fired ticket to a worker other than the default GPT-5.5:
+two GLM-5.2 routes, and a no-extra-key Claude route (Sonnet 5). `/sous-chef:mise`
 configures one (or both); fire uses whichever is installed. The ticket, the preflight,
 the announce-to-user step, and the per-job directory (`$JOB`) are identical to a
 normal fire - only the worker invocation changes.
@@ -53,6 +54,40 @@ codex exec --profile sous-chef-glm \
 Preflight for this route: `test -f ~/.codex/sous-chef-glm.config.toml` - Codex
 silently ignores a missing profile and would run under the user's defaults with the
 wrong model and no OpenRouter provider.
+
+
+## Route C - Claude subscription worker (Sonnet 5, no extra key)
+
+Fire the ticket to Claude Code headless on the user's own Anthropic
+subscription - no new key, no provider config. This is the natural fallback
+when Codex hits its usage limit mid-serve ("try again at HH:MM"), and the
+all-Anthropic option for users without a ChatGPT plan. Installed marker:
+none needed - `claude` is already on the machine running this plugin.
+
+```
+Bash (run_in_background: true), cwd = repo root:
+claude -p --model claude-sonnet-5 --dangerously-skip-permissions \
+  < "$JOB/ticket.md" > "$JOB/result.md" 2> "$JOB/job.log"
+```
+
+- Same plating as route A: `claude -p` prints the final message to stdout, so
+  `$JOB/result.md` plays the `--output-last-message` role and the progress
+  stream lands in `$JOB/job.log`.
+- Uses the default `CLAUDE_CONFIG_DIR`, so the worker inherits the user's
+  subscription auth (OAuth/keychain) with zero setup. Consequence: the
+  worker also loads the user's global `CLAUDE.md` - including this plugin's
+  routing block - so **open the ticket with "Implement directly; do not
+  delegate."** to keep the worker from contemplating recursion.
+- Quota is shared with the orchestrator (one Anthropic subscription), but
+  Sonnet 5 drains it far slower than Opus/Fable-tier orchestration does.
+- Cross-model review: when Codex quota recovers, keep Codex as the taster -
+  Sonnet implements, GPT-5.5 reviews, the head chef orchestrates. If both
+  worker and reviewer are Anthropic models, say so in the report (the
+  cross-lineage value of the taste is reduced).
+- Honest caveat, same as route A: `--dangerously-skip-permissions` has no OS
+  sandbox underneath. Only fire route C inside a repo you'd trust Codex's
+  `danger-full-access` in, or on a branch/worktree.
+- Ledger line: `"skill":"fire","model":"claude-sonnet-5"`.
 
 ## Dead ends (do not suggest)
 
