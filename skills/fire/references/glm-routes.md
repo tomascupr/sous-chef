@@ -88,6 +88,8 @@ claude -p --model claude-sonnet-5 --dangerously-skip-permissions \
   sandbox underneath. Only fire route C inside a repo you'd trust Codex's
   `danger-full-access` in, or on a branch/worktree.
 - Ledger line: `"skill":"fire","model":"claude-sonnet-5"`.
+- Invocation spelling: `/sous-chef:fire --with sonnet <task>` (or the loose
+  phrase "fire with sonnet").
 
 ## Dead ends (do not suggest)
 

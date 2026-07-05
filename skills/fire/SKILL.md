@@ -51,6 +51,22 @@ Write the ticket to `$JOB/ticket.md` using the template in [references/ticket-te
 
 Repo-level standards (build commands, conventions, do-not-touch areas) belong in the repo's `AGENTS.md`, which Codex reads automatically on every run - don't duplicate them on the ticket. Run `/sous-chef:mise` once per repo to set that up.
 
+## Choosing the worker — `--with`
+
+The arguments may begin with `--with <worker>`; strip it before treating the
+rest as the task description. Workers:
+
+| `--with` | Worker | Route |
+|---|---|---|
+| *(absent)* / `codex` | GPT-5.5 via Codex CLI | the default invocation below |
+| `sonnet` | Claude Sonnet 5, user's own subscription | `references/glm-routes.md` Route C |
+| `glm` | GLM-5.2 | `references/glm-routes.md` Route A or B, whichever is installed |
+
+Loose phrases ("fire with sonnet", "use GLM for this") mean the same thing —
+`--with` is just the unambiguous spelling, immune to task text that happens
+to mention a model name. The ticket, preflight, job dir, plating, and ledger
+are identical for every worker; only the invocation changes.
+
 ## Firing
 
 Run from the repo root (workspace-write scopes writes to the working directory), in the background - never in the foreground, where the Bash timeout ceiling kills long runs. Tool-level backgrounding is the only backgrounding: the command itself must NOT contain `&`, `nohup`, or `disown`, or Claude Code will track a wrapper that exits immediately, fire a false completion notification, and leave the real worker orphaned.
