@@ -20,6 +20,7 @@ rewritten in full at every stage transition:
 
 ```
 task: <one line>
+started: <UTC ISO-8601 of stage 1's fire>
 budget: 5
 runs_used: 2 (fire, taste)
 stage: taste plated; next: refire
@@ -86,6 +87,12 @@ One message: what shipped (files, summary), what taste found (confirmed findings
 how the refire resolved them; refuted count), the verification output you ran
 yourself, and anything OPEN. If all stages came back clean, say so plainly - two
 models in agreement, checks green, plate served.
+
+Then write the run's receipt to `.sous-chef/receipts/` per
+[../receipts/references/receipt-template.md](../receipts/references/receipt-template.md)
+and, when the verdict is verified, end the report with its shareable summary line.
+Receipt numbers come from the job logs, your own verification, and the diff against
+`baseline:` - a line you can't back with a measurement gets dropped, not guessed.
 
 ## When NOT to serve
 
