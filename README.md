@@ -146,9 +146,11 @@ stay with Claude.
 
 **How do I see what I'm saving?** Every delegated run ends with a receipt - the
 worker's token count from the job log - and appends one JSON line to
-`~/.sous-chef/ledger.jsonl`. `/mise` prints the running tab (jobs to date, tokens
-kept off Claude), or sum it yourself:
-`jq -s '{jobs: length, tokens: (map(.tokens) | add)}' ~/.sous-chef/ledger.jsonl`.
+`~/.sous-chef/ledger.jsonl`; lines may also carry an optional `claude_tokens`
+estimate of Claude-side orchestration cost. `/mise` prints the running tab (jobs to
+date, Codex tokens, Claude-side estimates when present, and the observed ratio
+computed only from runs that carry a Claude-side estimate), or sum it yourself:
+`jq -s '{jobs: length, codex_tokens: (map(.tokens) | add // 0), claude_tokens: (map(.claude_tokens // 0) | add // 0)} as $t | (map(select(.claude_tokens))) as $p | $t + (if ($p | length) > 0 then {codex_to_claude_ratio: (($p | map(.tokens) | add) / ($p | map(.claude_tokens) | add))} else {} end)' ~/.sous-chef/ledger.jsonl`.
 
 **What does delegation actually save?** Measured 2026-07-04: three seeded tasks
 (mechanical refactor, mid-size feature, parser-class feature), each run both ways

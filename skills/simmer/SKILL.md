@@ -89,9 +89,9 @@ For each iteration, until the goal passes or the budget is spent:
    how a loop survives a bad lap: a regression is a revert, not an argument.
 4. **Judge, decide, and say so** - give the user a one-line lap report (lap N of M:
    what changed, check result) and add the lap to the running tab per fire's plating -
-   same `~/.sous-chef/ledger.jsonl` line with `"skill":"simmer"` plus `"lap":N`, pass
-   or fail (a failed lap still spent quota; no token summary in the log means no
-   line). Then:
+   same `~/.sous-chef/ledger.jsonl` line with `"skill":"simmer"`, optional
+   `"claude_tokens"` when you can honestly estimate it, plus `"lap":N`, pass or fail
+   (a failed lap still spent quota; no token summary in the log means no line). Then:
    - Checks pass → done. Report laps used, final check output, the commits made, and
      **the branch name** - merging (or deleting) it is the user's call. Mention that
      `.sous-chef/` is loop scaffolding they can drop (`rm -rf .sous-chef`); don't

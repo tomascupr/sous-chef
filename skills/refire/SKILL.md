@@ -55,8 +55,9 @@ Write `$JOB/ticket.md` with the fire template's XML blocks, specialized:
 ## Firing and plating
 
 Identical to fire: backgrounded profiled run from the repo root, announce it in one
-line (what, which model, expected minutes, log path, cancel offer), no polling.
-Fire's ledger line applies too, with `"skill":"refire"`.
+line (what, which model, expected minutes, log path, cancel offer), no polling, and
+no `&`, `nohup`, or `disown` inside the command. Fire's ledger line applies too, with
+`"skill":"refire"` and optional `"claude_tokens"` when you can honestly estimate it.
 
 At plating, in addition to fire's outcome checks (exit code, result file present,
 sandbox banner):
@@ -64,8 +65,11 @@ sandbox banner):
 1. Open each finding's cited location and confirm the defect is gone. A
    finding-by-finding checklist, not a vibe.
 2. Run the verification commands yourself.
-3. Diff against the pre-refire baseline: only finding-scoped changes should appear.
-   Anything else gets reverted or flagged to the user.
+3. Diff against the pre-refire baseline and compare the changed file set to the
+   ticket's `<files>` Touch list, using fire's concurrent-edit rule. Name outside-list
+   files, warn `concurrent edit detected - these changes are NOT part of this run's
+   review`, exclude them from the refire-attributed delta, and revert or flag worker
+   out-of-scope changes.
 4. For risky diffs, offer a confirmation `/sous-chef:taste`; two clean models in a row
    is the strongest ship signal this kitchen produces.
 

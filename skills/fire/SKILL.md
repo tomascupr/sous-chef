@@ -53,7 +53,7 @@ Repo-level standards (build commands, conventions, do-not-touch areas) belong in
 
 ## Firing
 
-Run from the repo root (workspace-write scopes writes to the working directory), in the background - never in the foreground, where the Bash timeout ceiling kills long runs.
+Run from the repo root (workspace-write scopes writes to the working directory), in the background - never in the foreground, where the Bash timeout ceiling kills long runs. Tool-level backgrounding is the only backgrounding: the command itself must NOT contain `&`, `nohup`, or `disown`, or Claude Code will track a wrapper that exits immediately, fire a false completion notification, and leave the real worker orphaned.
 
 ```
 Bash (run_in_background: true), cwd = repo root:
@@ -81,7 +81,7 @@ Do NOT poll - polling loops against a running Codex job are the documented way t
 
 1. **Check the outcome before trusting the plate.** If the job exited non-zero, or `$JOB/result.md` is missing or empty, the run failed - read the tail of `$JOB/job.log`, show the user the error verbatim, and offer one rerun or taking over yourself. Two errors worth naming for the user: "You've hit your usage limit" means wait for the plan's 5-hour window to reset (or escalate plans); a persistent `401` means their `codex login` needs redoing. Never present a missing result as a clean outcome. (MCP transport errors near the top of the log are usually harmless noise from the user's Codex-side MCP servers - the real signal is the last lines.)
 2. Glance at the log's opening banner: its `sandbox:` line is ground truth for what actually ran. If it isn't `workspace-write`, say so.
-3. Read `$JOB/result.md`, then review Codex's actual delta: `git status`/`git diff` compared against `$JOB/pre-fire.patch` - don't attribute the user's own WIP to Codex.
+3. Read `$JOB/result.md`, then compare the post-baseline changed file set (`git status`/`git diff` minus `$JOB/pre-fire.*`) to the ticket's `<files>` Touch list. Outside-list paths are unresolved until classified: paths confirmed as another session's concurrent edits must be named with the warning `concurrent edit detected - these changes are NOT part of this run's review` and excluded from the worker-attributed delta, while paths that are the worker's own out-of-scope changes must be reverted or explicitly flagged to the user before the run can be accepted. Then review Codex's actual delta against `$JOB/pre-fire.patch` - don't attribute the user's own WIP to Codex.
 4. Review the diff carefully, line by line. Codex is a competent implementer that makes wrong assumptions without checking - that is exactly the failure mode you're here to catch.
 5. Run the `<verification>` commands yourself. Codex's claims are not evidence; command output is.
 6. Then either:
@@ -90,9 +90,11 @@ Do NOT poll - polling loops against a running Codex job are the documented way t
      job.log) - quota spend is otherwise invisible to the user. Then add the job
      to the running tab: append one line to `~/.sous-chef/ledger.jsonl`
      (`mkdir -p ~/.sous-chef` first) of the form
-     `{"ts":"<UTC ISO-8601>","repo":"<repo basename>","skill":"fire","model":"<model from the log banner>","tokens":<total from the closing summary>}`.
-     If the log carries no token summary, skip the ledger line - never invent a
-     number.
+     `{"ts":"<UTC ISO-8601>","repo":"<repo basename>","skill":"fire","model":"<model from the log banner>","tokens":<total from the closing summary>,"claude_tokens":<estimated Claude-side orchestration tokens, omit if no basis>}`.
+     `claude_tokens` is your honest estimate for this round trip's Claude-side
+     ticket/review/report text. If the log carries no token summary, skip the ledger
+     line; if you have no basis for the estimate, omit `claude_tokens` - never invent
+     either number.
    - Send ONE delta: a fresh fire (new `$JOB`, short ticket that states what the previous run got wrong, quotes the failing output, and scopes the fix). Do NOT use `codex exec resume` - resumed sessions rebuild config from the user's defaults, silently dropping the sandbox, and `--last` may grab a different session entirely. Fresh run + state on disk is the reliable path.
 
 Cap follow-ups at two rounds. If it's still not right after two deltas, take over and finish it yourself - further debate has diminishing returns.

@@ -38,6 +38,8 @@ env -u CODEX_API_KEY -u CODEX_ACCESS_TOKEN codex exec --profile sous-chef --sand
   - < "$JOB/review-prompt.md" > "$JOB/job.log" 2>&1
 ```
 
+Same backgrounding rule as fire: do not put `&`, `nohup`, or `disown` inside the command, or the harness can report false completion while Codex is still running.
+
 `--sandbox read-only` overrides the profile's workspace-write - CLI flags beat profile settings. The reviewer must not be able to "fix" anything; review and implementation stay separate roles.
 
 Tell the user the review is running, that it can take several minutes on a real diff, and where the log lives. Do not poll while it runs.
@@ -58,7 +60,7 @@ Then write the CONFIRMED set to `$JOB/findings.md`: a header line (verdict, scop
 
 ## 4. Report
 
-Lead with the verdict (ship / fix first), then confirmed findings ordered by severity, each with file:line, the failure scenario in one sentence, and the fix. Close with "N findings refuted on validation" if any, plus the run's token usage from the log's closing summary - and add the run to the tab per fire's plating (same `~/.sous-chef/ledger.jsonl` line, with `"skill":"taste"`). Name the absolute `$JOB/findings.md` path in the report. Do not apply fixes unless the user asked for that - the deliverable of a review is the assessment. If the user wants the confirmed findings fixed, that is `/sous-chef:refire`, and the findings file is its input.
+Lead with the verdict (ship / fix first), then confirmed findings ordered by severity, each with file:line, the failure scenario in one sentence, and the fix. Close with "N findings refuted on validation" if any, plus the run's token usage from the log's closing summary - and add the run to the tab per fire's plating (same `~/.sous-chef/ledger.jsonl` line, with `"skill":"taste"` and optional `"claude_tokens"` when you can honestly estimate it). Name the absolute `$JOB/findings.md` path in the report. Do not apply fixes unless the user asked for that - the deliverable of a review is the assessment. If the user wants the confirmed findings fixed, that is `/sous-chef:refire`, and the findings file is its input.
 
 ## Notes
 

@@ -22,6 +22,12 @@ doc, or a measured comparison - collected via a multi-source research sweep on
   subscription.
   Sources: [madewithlove](https://madewithlove.com/blog/claude-up-front-codex-in-the-back/),
   [Using Claude Code and Codex together](https://codex.danielvaughan.com/2026/03/27/using-claude-code-and-codex-together/).
+- **Savings need user-owned measurements.** The original ledger counted only Codex
+  tokens, which could not answer the "actual benefit" question from a user's own
+  runs; the fix adds optional Claude-side orchestration estimates so the running tab
+  can compute the observed ratio without inventing data.
+  Sources: [sous-chef#5](https://github.com/tomascupr/sous-chef/issues/5),
+  [sous-chef#2](https://github.com/tomascupr/sous-chef/issues/2).
 - **Division of labor consensus** across independent write-ups: Claude excels where
   "the right action is not obvious before you start"; Codex optimizes throughput on
   well-specified tasks and "will not change adjacent code unless asked."
@@ -89,6 +95,12 @@ doc, or a measured comparison - collected via a multi-source research sweep on
 - The sanctioned path is detach-and-notify: `run_in_background` re-invokes the agent
   on exit ([interactive-mode docs](https://code.claude.com/docs/en/interactive-mode)),
   and the Monitor tool (April 2026) replaces polling with until-conditions.
+- **Only the harness backgrounds the job.** Dogfooding found a double-detached
+  invocation (`&`/`disown` inside a `run_in_background` Bash) where Claude Code
+  tracked a wrapper that exited immediately and sent a false completion while Codex
+  kept running orphaned; fire now makes tool-level backgrounding the only
+  backgrounding.
+  Source: [sous-chef#5](https://github.com/tomascupr/sous-chef/issues/5).
 
 ## Why AGENTS.md is the standards channel
 
@@ -324,6 +336,12 @@ doc, or a measured comparison - collected via a multi-source research sweep on
 - Findings persist at per-job paths (`$JOB/findings.md`), never a fixed "latest"
   path - fire's stale-fixed-path rule (fixed paths serve stale results as fresh
   successes) applies to the orchestrator's own artifacts too.
+- **Plating checks path ownership, not just diffs.** A dogfooding fire overlapped with
+  a second Claude Code session; disjoint files showed up in the baseline-aware diff,
+  but overlapping edits would have become one confusing merged delta. Fire/refire now
+  compare post-baseline paths to the ticket's `<files>` list and exclude outside paths
+  from worker attribution.
+  Source: [sous-chef#5](https://github.com/tomascupr/sous-chef/issues/5).
 
 ## The Karpathy grounding
 
