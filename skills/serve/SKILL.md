@@ -40,7 +40,7 @@ dirs still hold the work.)
 
 If the arguments begin with `--with <worker>` (see fire's worker table), the
 choice applies to the whole line: fire and refire run on that worker; taste
-stays on Codex read-only when available so the review remains cross-model —
+stays on Codex read-only when available so the review remains cross-model -
 if worker and reviewer end up being the same lineage, say so in the report.
 Record the worker in `state.md` (`worker: sonnet`).
 

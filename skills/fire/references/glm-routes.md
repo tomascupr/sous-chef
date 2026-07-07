@@ -2,9 +2,11 @@
 
 Ways to route a fired ticket to a worker other than the default GPT-5.5:
 two GLM-5.2 routes, and a no-extra-key Claude route (Sonnet 5). `/sous-chef:mise`
-configures one (or both); fire uses whichever is installed. The ticket, the preflight,
-the announce-to-user step, and the per-job directory (`$JOB`) are identical to a
-normal fire - only the worker invocation changes.
+configures one (or both); fire uses whichever is installed. The ticket, the
+announce-to-user step, and the per-job directory (`$JOB`) are identical to a
+normal fire - the worker invocation changes, and preflight is route-specific
+(listed under each route; Codex's profile check applies to the default route
+only).
 
 The Bash tool's `run_in_background: true` is still the only backgrounding: do not add
 `&`, `nohup`, or `disown` inside either command, or the harness can report false
@@ -55,15 +57,17 @@ Preflight for this route: `test -f ~/.codex/sous-chef-glm.config.toml` - Codex
 silently ignores a missing profile and would run under the user's defaults with the
 wrong model and no OpenRouter provider.
 
-
 ## Route C - Claude subscription worker (Sonnet 5, no extra key)
 
 Fire the ticket to Claude Code headless on the user's own Anthropic
 subscription - no new key, no provider config. This is the fallback worker
 for Codex users when Codex hits its usage limit mid-serve ("try again at
 HH:MM"); mise and taste still need Codex, so it is not a Codex-free
-configuration on its own. Installed marker:
-none needed - `claude` is already on the machine running this plugin.
+configuration on its own. Installed marker: none needed - `claude` is
+already on the machine running this plugin.
+
+Preflight for this route: `command -v claude` - no Codex profile check;
+fire's step-2 hard stop applies to the default route only.
 
 ```
 Bash (run_in_background: true), cwd = repo root:

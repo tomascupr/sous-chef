@@ -1,6 +1,6 @@
 ---
 name: fire
-description: Delegates a well-specified implementation task to Codex CLI (or, via --with, Claude Sonnet 5 on the user's own subscription, or opt-in GLM-5.2) in the background. Use when the user asks to hand work to Codex, or for substantial spec-able work - features, refactors, migrations, boilerplate; offer first unless the routing policy is autonomous. Not for small fixes or ambiguous design; never fire silently.
+description: Delegates a well-specified implementation task to Codex CLI (or, via --with, Claude Sonnet 5 or opt-in GLM-5.2) in the background. Use when the user asks to hand work to Codex, or for substantial spec-able work - features, refactors, migrations, boilerplate; offer first unless the routing policy is autonomous. Not for small fixes or ambiguous design; never fire silently.
 ---
 
 # Fire - hand the ticket to the sous-chef
@@ -51,7 +51,7 @@ Write the ticket to `$JOB/ticket.md` using the template in [references/ticket-te
 
 Repo-level standards (build commands, conventions, do-not-touch areas) belong in the repo's `AGENTS.md`, which Codex reads automatically on every run - don't duplicate them on the ticket. Run `/sous-chef:mise` once per repo to set that up.
 
-## Choosing the worker — `--with`
+## Choosing the worker - `--with`
 
 The arguments may begin with `--with <worker>`; strip it before treating the
 rest as the task description. Workers:
@@ -62,7 +62,7 @@ rest as the task description. Workers:
 | `sonnet` | Claude Sonnet 5, user's own subscription | `references/glm-routes.md` Route C |
 | `glm` | GLM-5.2 | `references/glm-routes.md` Route A or B, whichever is installed |
 
-Loose phrases ("fire with sonnet", "use GLM for this") mean the same thing —
+Loose phrases ("fire with sonnet", "use GLM for this") mean the same thing -
 `--with` is just the unambiguous spelling, immune to task text that happens
 to mention a model name. The ticket, job dir, and plating are identical for
 every worker; only the invocation changes. Preflight differs per worker:
@@ -106,8 +106,9 @@ A long run need not be a silent one. If the user opted into progress ticks (or s
 5. Run the `<verification>` commands yourself. Codex's claims are not evidence; command output is.
 6. Then either:
    - Accept - summarize what shipped and what you verified, plus the token usage
-     from the log's closing summary (the `tokens used` block near the end of
-     job.log) - quota spend is otherwise invisible to the user. Then add the job
+     from the log's closing summary when the log carries one (the `tokens used`
+     block near the end of job.log; Claude-worker routes emit none - say token
+     usage is unavailable) - quota spend is otherwise invisible to the user. Then add the job
      to the running tab: append one line to `~/.sous-chef/ledger.jsonl`
      (`mkdir -p ~/.sous-chef` first) of the form
      `{"ts":"<UTC ISO-8601>","repo":"<repo basename>","skill":"fire","model":"<model from the log banner>","tokens":<total from the closing summary>}`.

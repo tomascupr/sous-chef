@@ -93,8 +93,9 @@ and refire itself by task shape, announcing in one line before every delegation;
 simmer stays explicit-ask; choose the mode in `/mise`, and switch by re-running it.
 The boundary that IS hard: delegated Codex runs execute in a
 `workspace-write` sandbox with approvals off, and Codex reviews run `read-only`. (The
-optional GLM Claude-worker route has no OS sandbox underneath; its docs say to treat
-it accordingly - trusted repos or a branch/worktree only.)
+optional Claude-worker routes - GLM Route A and Sonnet Route C - have no OS sandbox
+underneath; their docs say to treat them accordingly: trusted repos or a
+branch/worktree only.)
 
 **One source of truth for standards.** Repo conventions live in `AGENTS.md`, which
 Codex re-reads on every run - including non-interactive `codex exec`. Claude reads
@@ -184,8 +185,8 @@ of the per-token price, though ~3.3x more token-hungry. Two routes as templates
 (GLM Coding Plan via a headless Claude worker, or OpenRouter through Codex); `/mise`
 sets up whichever key you have. A third route needs no key at all: fire the
 ticket to Claude Sonnet 5 headless on your own Anthropic subscription - the
-built-in fallback when Codex hits its usage limit mid-serve. On the Claude side it's model-agnostic; built for and
-dogfooded with Fable 5.
+built-in fallback when Codex hits its usage limit mid-serve. On the Claude side
+it's model-agnostic; built for and dogfooded with Fable 5.
 
 **Why not MCP?** Plain `codex exec` over Bash gives you the sandbox flag, the exit
 code, stdin for prompts, and background execution with no extra moving parts. That is
