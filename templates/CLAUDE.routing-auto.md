@@ -16,6 +16,8 @@
   that needs conversation context a ticket can't carry.
 - sous-chef:simmer stays explicit-ask only - it creates a branch and makes commits.
 - Never fire silently - the one-line announcement is the safety valve autonomy keeps.
-- Never poll a running Codex job; fire it in the background and let completion notify you.
+- Never poll a running Codex job; fire it in the background and let completion notify
+  you - paced progress ticks read from the local job log (fire's "While it cooks")
+  are narration, not polling.
 - Review every Codex diff carefully, line by line; run verification commands yourself -
   claims are not evidence.

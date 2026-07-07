@@ -20,11 +20,13 @@ rewritten in full at every stage transition:
 
 ```
 task: <one line>
+started: <UTC ISO-8601 of stage 1's fire>
 budget: 5
 runs_used: 2 (fire, taste)
 stage: taste plated; next: refire
 baseline: <abs path to stage 1's pre-fire.patch>
 findings: <abs path to taste's findings.md>
+job: <abs path to the job dir currently cooking, if any>
 ```
 
 Bump `runs_used` when a run is launched, not when it lands - a compaction while a
@@ -62,6 +64,12 @@ check; outside-list paths are named, warned, and excluded from the stage delta.
   the pipeline without asking anything between stages; a one-line tick as each stage
   completes ("fire plated, checks green - tasting now") keeps a long serve legible.
   No-asking is the contract, not silence.
+- Progress ticks are on by default: while a Codex run cooks, keep a self-paced wakeup
+  loop armed per fire's "While it cooks" - one distilled line every few minutes from
+  the running job's log, disarmed the moment the run exits. Each tick reads
+  `$RUN/state.md` (its `job:` line names the log to tail), not conversation memory,
+  so ticks survive compaction. A serve asks for 15-45 unattended minutes; the ticks
+  are what make that tolerable.
 - Only interrupt the user for hard blockers: a failed run with an error they must act
   on (auth, quota), verification still red after stage 1's delta (and any surgical
   fix of your own), a finding that survived its refire, or preflight failures.
@@ -80,9 +88,14 @@ check; outside-list paths are named, warned, and excluded from the stage delta.
 
 One message: what shipped (files, summary), what taste found (confirmed findings and
 how the refire resolved them; refuted count), the verification output you ran
-yourself, the per-stage ledger/token summary including optional `claude_tokens` when
-you can honestly estimate it, and anything OPEN. If all stages came back clean, say
-so plainly - two models in agreement, checks green, plate served.
+yourself, and anything OPEN. If all stages came back clean, say so plainly - two
+models in agreement, checks green, plate served.
+
+Then write the run's receipt to `.sous-chef/receipts/` per
+[../receipts/references/receipt-template.md](../receipts/references/receipt-template.md)
+and, when the verdict is verified, end the report with its shareable summary line.
+Receipt numbers come from the job logs, your own verification, and the diff against
+`baseline:` - a line you can't back with a measurement gets dropped, not guessed.
 
 ## When NOT to serve
 

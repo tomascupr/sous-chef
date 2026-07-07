@@ -42,6 +42,7 @@ what remains is goal-shaped, it offers to continue as a simmer.
 | `/sous-chef:taste` | Cross-model review, read-only. Claude validates every finding against the code and filters false positives before you see them. |
 | `/sous-chef:refire` | Turn the confirmed findings from a taste into one scoped fix run, then re-verify each finding at its cited location. |
 | `/sous-chef:mise` | Setup: Codex CLI + auth checks, delegation profile, `AGENTS.md` scaffold, routing policy (manual or autonomous). Once per machine, once per repo. |
+| `/sous-chef:receipts` | Print the check: the repo's last ten run receipts as a table with a savings total; reprint any receipt's shareable summary. |
 
 ## Install
 
@@ -144,13 +145,15 @@ auto-refresh even mid-run, and fire unsets the two env vars (`CODEX_API_KEY`,
 Delegation overhead is ~5-7k Claude tokens per round trip, which is why small tasks
 stay with Claude.
 
-**How do I see what I'm saving?** Every delegated run ends with a receipt - the
-worker's token count from the job log - and appends one JSON line to
-`~/.sous-chef/ledger.jsonl`; lines may also carry an optional `claude_tokens`
-estimate of Claude-side orchestration cost. `/mise` prints the running tab (jobs to
-date, Codex tokens, Claude-side estimates when present, and the observed ratio
-computed only from runs that carry a Claude-side estimate), or sum it yourself:
-`jq -s '{jobs: length, codex_tokens: (map(.tokens) | add // 0), claude_tokens: (map(.claude_tokens // 0) | add // 0)} as $t | (map(select(.claude_tokens))) as $p | $t + (if ($p | length) > 0 then {codex_to_claude_ratio: (($p | map(.tokens) | add) / ($p | map(.claude_tokens) | add))} else {} end)' ~/.sous-chef/ledger.jsonl`.
+**How do I see what I'm saving?** Every delegated run reports the worker's token
+count from the job log and appends one JSON line to `~/.sous-chef/ledger.jsonl`.
+`/mise` prints the running tab (jobs to date, tokens kept off Claude), or sum it
+yourself:
+`jq -s '{jobs: length, tokens: (map(.tokens) | add)}' ~/.sous-chef/ledger.jsonl`.
+Serves and simmers also drop a per-run receipt in `.sous-chef/receipts/` -
+measured tokens, an API-list cost estimate, the diff, the verdict, and a
+paste-ready summary. `/sous-chef:receipts` prints the last ten with a savings
+total.
 
 **What does delegation actually save?** Measured 2026-07-04: three seeded tasks
 (mechanical refactor, mid-size feature, parser-class feature), each run both ways
@@ -164,8 +167,10 @@ and caveats: [issue #2](../../issues/2).
 
 **What do I see while it cooks?** An announcement first: what was delegated, the
 expected duration (typically 5-20+ minutes per Codex run at high reasoning effort),
-and the log path. You keep working; Claude is re-invoked when the job exits. Cancel
-anytime - Claude kills the job and shows you any partial changes to keep or revert.
+and the log path. You keep working; Claude is re-invoked when the job exits. In a
+serve - or on request in a fire - Claude also posts a one-line progress tick every
+few minutes, distilled from the job log, until the run exits. Cancel anytime -
+Claude kills the job and shows you any partial changes to keep or revert.
 
 **Does Claude stop writing code?** No. Small fixes, prototypes, and anything
 design-ambiguous stay with Claude - the routing rules themselves say so. Delegation
@@ -196,6 +201,7 @@ skills/fire/          delegation skill + ticket template + GLM routes
 skills/taste/         cross-review skill + review prompt template
 skills/refire/        fix skill: confirmed findings become a scoped fix run
 skills/mise/          setup skill
+skills/receipts/      the check: per-run cost receipts + savings table
 codex/                Codex profiles → ~/.codex/ (sous-chef default, sous-chef-glm)
 templates/            AGENTS.md scaffold, CLAUDE.md routing blocks (manual + autonomous), GLM worker config
 docs/design.md        the receipts: sources for every design decision
@@ -204,15 +210,20 @@ docs/design.md        the receipts: sources for every design decision
 ## Uninstall
 
 `/plugin uninstall sous-chef` removes the skills (and
-`/plugin marketplace remove sous-chef` the registration). If you ran `/mise`, it may
-also have created (remove by hand if you're done with them):
+`/plugin marketplace remove sous-chef` the registration). Using the plugin may also
+have created (remove by hand if you're done with them):
 
 - `~/.codex/sous-chef.config.toml` and `~/.codex/sous-chef-glm.config.toml`
-- `~/.sous-chef/glm-claude/` (isolated GLM worker config)
+- `~/.sous-chef/glm-claude/` (isolated GLM worker config) and
+  `~/.sous-chef/ledger.jsonl` (the running tab)
 - a "Division of labor (sous-chef, ...)" routing block (manual or autonomous variant)
   appended to `~/.claude/CLAUDE.md`
 - an `AGENTS.md` scaffold and/or `@AGENTS.md` import line in repos you set up (these
   are yours now - they're useful regardless of the plugin)
+- a `.sous-chef/` directory (run receipts, and loop state after a simmer) in repos
+  where a serve or simmer ran - git-ignored via a `.sous-chef/` line in
+  `.git/info/exclude`; `rm -rf .sous-chef` per repo when you're done with the
+  receipts
 
 ## Contributing
 

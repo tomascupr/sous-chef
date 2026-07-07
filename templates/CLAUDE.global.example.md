@@ -25,7 +25,9 @@
   fix, verify), prefer /sous-chef:serve - one announcement, one report.
 - Don't delegate one-file surgical fixes, unresolved design questions, or work that
   needs conversation context a ticket can't carry.
-- Never poll a running Codex job; fire it in the background and let completion notify you.
+- Never poll a running Codex job; fire it in the background and let completion notify
+  you - paced progress ticks read from the local job log (fire's "While it cooks")
+  are narration, not polling.
 - Review every Codex diff carefully, line by line; run verification commands yourself -
   claims are not evidence.
 - Offer /sous-chef:taste (cross-model review) for large or risky diffs.

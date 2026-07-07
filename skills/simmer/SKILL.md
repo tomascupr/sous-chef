@@ -37,7 +37,8 @@ before lap 1 (simmer creates a branch and makes commits - say so):
 ## 2. Loop state - in the repo, out of git
 
 Add `.sous-chef/` to `$(git rev-parse --git-path info/exclude)` if it isn't there
-yet, then write the contract (goal, check commands, budget, branch) to
+yet, then write the contract (goal, check commands, budget, branch with its base
+commit, and the UTC start time) to
 `.sous-chef/loop.md` and create `.sous-chef/progress.md`. The state survives session
 restarts because it lives in the repo; the ignore keeps it out of diffs, checkpoint
 commits, and the no-progress guard.
@@ -73,7 +74,8 @@ For each iteration, until the goal passes or the budget is spent:
    file is the judge's), and stop. When you launch, append `lap N: fired <abs job
    dir>` under `## Laps` - the budget counts launches, not landings, so a crash
    mid-lap can't un-spend a lap, and the job dir is how a later resume proves this
-   run's fate. Do not poll while it runs.
+   run's fate. Do not poll while it runs; progress ticks, if the user has them on,
+   follow fire's "While it cooks" - armed per lap, disarmed at lap exit.
 2. **Verify yourself** - when it exits, first check the job outcome (non-zero exit or
    missing result file = failed lap: rewrite its line to `lap N: fail - run error:
    <cause>`, read the log tail, surface the error, and decide with the user whether
@@ -89,13 +91,14 @@ For each iteration, until the goal passes or the budget is spent:
    how a loop survives a bad lap: a regression is a revert, not an argument.
 4. **Judge, decide, and say so** - give the user a one-line lap report (lap N of M:
    what changed, check result) and add the lap to the running tab per fire's plating -
-   same `~/.sous-chef/ledger.jsonl` line with `"skill":"simmer"`, optional
-   `"claude_tokens"` when you can honestly estimate it, plus `"lap":N`, pass or fail
-   (a failed lap still spent quota; no token summary in the log means no line). Then:
+   same `~/.sous-chef/ledger.jsonl` line with `"skill":"simmer"` plus `"lap":N`, pass
+   or fail (a failed lap still spent quota; no token summary in the log means no
+   line). Then:
    - Checks pass → done. Report laps used, final check output, the commits made, and
      **the branch name** - merging (or deleting) it is the user's call. Mention that
-     `.sous-chef/` is loop scaffolding they can drop (`rm -rf .sous-chef`); don't
-     delete it unasked. Offer to switch them back to their original branch.
+     `.sous-chef/loop.md` and `progress.md` are loop scaffolding they can drop, while
+     `.sous-chef/receipts/` keeps the repo's run receipts; don't delete either
+     unasked. Offer to switch them back to their original branch.
    - Checks fail, progress made → next lap, feeding the failure output back.
    - **No progress or cycling** - the tree hash (`git rev-parse HEAD^{tree}` plus a
      hash of the working diff) didn't change, or this lap's failure signature already
@@ -104,6 +107,9 @@ For each iteration, until the goal passes or the budget is spent:
      laps, it needs a different approach (often: you take over, or the ticket was
      under-specified).
    - Budget spent → stop, report honestly where it landed.
+
+   Whatever the terminal outcome, write the run's receipt per
+   [../receipts/references/receipt-template.md](../receipts/references/receipt-template.md).
 
 ## 4. Rails (non-negotiable)
 

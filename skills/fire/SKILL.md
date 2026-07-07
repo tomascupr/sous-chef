@@ -67,7 +67,7 @@ Notes on the invocation:
 - `env -u CODEX_API_KEY -u CODEX_ACCESS_TOKEN` pins the run to the user's `codex login` (ChatGPT subscription) auth - those two are the only env vars that override it in `codex exec`, and if either is set the run silently bills per-token instead. (`OPENAI_API_KEY` is NOT read for auth by current Codex, and unsetting it would break custom providers that use it as their `env_key`.)
 - Prompt goes via stdin (`- <`) to avoid shell-quoting damage to the ticket.
 
-**Then tell the user, in one or two lines:** what was delegated and to which model (read `model` from `~/.codex/config.toml` - don't assert a model you didn't check), that it typically takes 5–20+ minutes at high reasoning effort, a paste-ready `tail -f "$JOB/job.log"` (absolute path) to watch it cook, the ticket at `$JOB/ticket.md` for what was ordered, and that they can cancel anytime.
+**Then tell the user, in one or two lines:** what was delegated and to which model (read `model` from `~/.codex/config.toml` - don't assert a model you didn't check), that it typically takes 5–20+ minutes at high reasoning effort, a paste-ready `tail -f "$JOB/job.log"` (absolute path) to watch it cook - warning that stray MCP transport noise early in the log is usually harmless, not the run failing - the ticket at `$JOB/ticket.md` for what was ordered, and that they can cancel anytime. Offer progress ticks (below) as a clause they can opt into by replying, not a blocking question.
 
 To route the ticket to GLM-5.2 instead (user opt-in), see [references/glm-routes.md](references/glm-routes.md) - same ticket, different worker invocation.
 
@@ -75,13 +75,15 @@ To route the ticket to GLM-5.2 instead (user opt-in), see [references/glm-routes
 
 Do NOT poll - polling loops against a running Codex job are the documented way to incinerate quota while producing nothing. Work on something else or end your turn; the backgrounded job re-invokes you when it exits. If you must watch for a condition, arm a single Monitor with an until-loop on `$JOB/job.log` matching terminal states (completion AND error signatures like `ERROR:`, `stream disconnected`), not a poll loop.
 
+A long run need not be a silent one. If the user opted into progress ticks (or serve turned them on), arm a self-paced wakeup loop - `/loop` with no interval, or whatever wakeup scheduler the harness offers - with the absolute `$JOB/job.log` path in the armed prompt: a tick must not depend on conversation memory to find its log. Each tick, read the tail of the log and report ONE distilled line ("three files edited, tests running now"), then re-arm, pacing ticks a few minutes apart (under five, so each wakeup lands on a warm prompt cache). A tick that finds a terminal state in the log says nothing and does not re-arm - completion re-invokes you regardless, and reporting the outcome, like plating, belongs to that turn. This is not the forbidden polling: it is bounded by the run, disarms itself, reads a local file, and never queries the worker. No wakeup facility? The `tail -f` handoff stands alone.
+
 **If the user cancels:** kill the background task, then run `git status` + `git diff` - the workspace-write worker may have left a half-applied change. Show the user what's there and let them decide keep or revert.
 
 ## Plating - when the job exits
 
 1. **Check the outcome before trusting the plate.** If the job exited non-zero, or `$JOB/result.md` is missing or empty, the run failed - read the tail of `$JOB/job.log`, show the user the error verbatim, and offer one rerun or taking over yourself. Two errors worth naming for the user: "You've hit your usage limit" means wait for the plan's 5-hour window to reset (or escalate plans); a persistent `401` means their `codex login` needs redoing. Never present a missing result as a clean outcome. (MCP transport errors near the top of the log are usually harmless noise from the user's Codex-side MCP servers - the real signal is the last lines.)
 2. Glance at the log's opening banner: its `sandbox:` line is ground truth for what actually ran. If it isn't `workspace-write`, say so.
-3. Read `$JOB/result.md`, then compare the post-baseline changed file set (`git status`/`git diff` minus `$JOB/pre-fire.*`) to the ticket's `<files>` Touch list. Outside-list paths are unresolved until classified: paths confirmed as another session's concurrent edits must be named with the warning `concurrent edit detected - these changes are NOT part of this run's review` and excluded from the worker-attributed delta, while paths that are the worker's own out-of-scope changes must be reverted or explicitly flagged to the user before the run can be accepted. Then review Codex's actual delta against `$JOB/pre-fire.patch` - don't attribute the user's own WIP to Codex.
+3. Read `$JOB/result.md`, then compare the post-baseline changed file set (`git status`/`git diff` minus `$JOB/pre-fire.*`) to the ticket's `<files>` Touch list. Outside-list paths are unresolved until classified: paths confirmed as another session's concurrent edits must be named with the warning `concurrent edit detected - these changes are NOT part of this run's review` and excluded from the worker-attributed delta, while paths that are the worker's own out-of-scope changes must be reverted or explicitly flagged to the user before the run can be accepted. This is a path-level check: it cannot catch a concurrent session editing a file that *is* on the Touch list - those edits merge into the same file's diff and only the line-by-line read in step 4 will separate them, so treat a Touch-listed file that changed more than the ticket asked as suspect too. Then review Codex's actual delta against `$JOB/pre-fire.patch` - don't attribute the user's own WIP to Codex.
 4. Review the diff carefully, line by line. Codex is a competent implementer that makes wrong assumptions without checking - that is exactly the failure mode you're here to catch.
 5. Run the `<verification>` commands yourself. Codex's claims are not evidence; command output is.
 6. Then either:
@@ -90,11 +92,9 @@ Do NOT poll - polling loops against a running Codex job are the documented way t
      job.log) - quota spend is otherwise invisible to the user. Then add the job
      to the running tab: append one line to `~/.sous-chef/ledger.jsonl`
      (`mkdir -p ~/.sous-chef` first) of the form
-     `{"ts":"<UTC ISO-8601>","repo":"<repo basename>","skill":"fire","model":"<model from the log banner>","tokens":<total from the closing summary>,"claude_tokens":<estimated Claude-side orchestration tokens, omit if no basis>}`.
-     `claude_tokens` is your honest estimate for this round trip's Claude-side
-     ticket/review/report text. If the log carries no token summary, skip the ledger
-     line; if you have no basis for the estimate, omit `claude_tokens` - never invent
-     either number.
+     `{"ts":"<UTC ISO-8601>","repo":"<repo basename>","skill":"fire","model":"<model from the log banner>","tokens":<total from the closing summary>}`.
+     If the log carries no token summary, skip the ledger line - never invent a
+     number.
    - Send ONE delta: a fresh fire (new `$JOB`, short ticket that states what the previous run got wrong, quotes the failing output, and scopes the fix). Do NOT use `codex exec resume` - resumed sessions rebuild config from the user's defaults, silently dropping the sandbox, and `--last` may grab a different session entirely. Fresh run + state on disk is the reliable path.
 
 Cap follow-ups at two rounds. If it's still not right after two deltas, take over and finish it yourself - further debate has diminishing returns.

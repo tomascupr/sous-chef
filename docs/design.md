@@ -22,12 +22,6 @@ doc, or a measured comparison - collected via a multi-source research sweep on
   subscription.
   Sources: [madewithlove](https://madewithlove.com/blog/claude-up-front-codex-in-the-back/),
   [Using Claude Code and Codex together](https://codex.danielvaughan.com/2026/03/27/using-claude-code-and-codex-together/).
-- **Savings need user-owned measurements.** The original ledger counted only Codex
-  tokens, which could not answer the "actual benefit" question from a user's own
-  runs; the fix adds optional Claude-side orchestration estimates so the running tab
-  can compute the observed ratio without inventing data.
-  Sources: [sous-chef#5](https://github.com/tomascupr/sous-chef/issues/5),
-  [sous-chef#2](https://github.com/tomascupr/sous-chef/issues/2).
 - **Division of labor consensus** across independent write-ups: Claude excels where
   "the right action is not obvious before you start"; Codex optimizes throughput on
   well-specified tasks and "will not change adjacent code unless asked."
@@ -101,6 +95,14 @@ doc, or a measured comparison - collected via a multi-source research sweep on
   kept running orphaned; fire now makes tool-level backgrounding the only
   backgrounding.
   Source: [sous-chef#5](https://github.com/tomascupr/sous-chef/issues/5).
+- Paced progress ticks compose with detach-and-notify rather than reverting to
+  polling: the [#54143](https://github.com/anthropics/claude-code/issues/54143)
+  failure mode is an unbounded polling loop, while a ticker is
+  bounded by the run, self-disarming on exit, and reads the local job log without
+  ever querying the worker. Pacing ticks under the prompt cache's 5-minute TTL keeps
+  each wakeup on a warm cache instead of re-reading the full conversation
+  ([prompt caching docs](https://platform.claude.com/docs/en/build-with-claude/prompt-caching)).
+  Completion still arrives via re-invocation; ticks only narrate the wait.
 
 ## Why AGENTS.md is the standards channel
 
