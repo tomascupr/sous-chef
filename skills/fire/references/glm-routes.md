@@ -59,25 +59,30 @@ wrong model and no OpenRouter provider.
 ## Route C - Claude subscription worker (Sonnet 5, no extra key)
 
 Fire the ticket to Claude Code headless on the user's own Anthropic
-subscription - no new key, no provider config. This is the natural fallback
-when Codex hits its usage limit mid-serve ("try again at HH:MM"), and the
-all-Anthropic option for users without a ChatGPT plan. Installed marker:
+subscription - no new key, no provider config. This is the fallback worker
+for Codex users when Codex hits its usage limit mid-serve ("try again at
+HH:MM"); mise and taste still need Codex, so it is not a Codex-free
+configuration on its own. Installed marker:
 none needed - `claude` is already on the machine running this plugin.
 
 ```
 Bash (run_in_background: true), cwd = repo root:
-claude -p --model claude-sonnet-5 --dangerously-skip-permissions \
+claude -p --model claude-sonnet-5 --dangerously-skip-permissions --strict-mcp-config \
   < "$JOB/ticket.md" > "$JOB/result.md" 2> "$JOB/job.log"
 ```
 
 - Same plating as route A: `claude -p` prints the final message to stdout, so
-  `$JOB/result.md` plays the `--output-last-message` role and the progress
-  stream lands in `$JOB/job.log`.
+  `$JOB/result.md` plays the `--output-last-message` role. `$JOB/job.log` is
+  errors-only (`claude -p` streams no progress to stderr) - progress ticks
+  should report elapsed time, not log contents.
 - Uses the default `CLAUDE_CONFIG_DIR`, so the worker inherits the user's
-  subscription auth (OAuth/keychain) with zero setup. Consequence: the
-  worker also loads the user's global `CLAUDE.md` - including this plugin's
-  routing block - so **open the ticket with "Implement directly; do not
-  delegate."** to keep the worker from contemplating recursion.
+  subscription auth (OAuth/keychain) with zero setup - it runs on the real
+  config dir. `--strict-mcp-config` keeps global MCP servers out, but
+  global hooks and plugins still load, and so does the user's global
+  `CLAUDE.md` - including this plugin's routing block - so **open the
+  ticket with "Implement directly; do not delegate."** to keep the worker
+  from contemplating recursion. (`--bare` is not an option - it never
+  reads OAuth/keychain.)
 - Quota is shared with the orchestrator (one Anthropic subscription), but
   Sonnet 5 drains it far slower than Opus/Fable-tier orchestration does.
 - Cross-model review: when Codex quota recovers, keep Codex as the taster -
@@ -87,7 +92,8 @@ claude -p --model claude-sonnet-5 --dangerously-skip-permissions \
 - Honest caveat, same as route A: `--dangerously-skip-permissions` has no OS
   sandbox underneath. Only fire route C inside a repo you'd trust Codex's
   `danger-full-access` in, or on a branch/worktree.
-- Ledger line: `"skill":"fire","model":"claude-sonnet-5"`.
+- No ledger line - `claude -p` emits no token summary (same gap as
+  Route A).
 - Invocation spelling: `/sous-chef:fire --with sonnet <task>` (or the loose
   phrase "fire with sonnet").
 
