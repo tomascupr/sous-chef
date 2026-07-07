@@ -89,6 +89,12 @@ doc, or a measured comparison - collected via a multi-source research sweep on
 - The sanctioned path is detach-and-notify: `run_in_background` re-invokes the agent
   on exit ([interactive-mode docs](https://code.claude.com/docs/en/interactive-mode)),
   and the Monitor tool (April 2026) replaces polling with until-conditions.
+- **Only the harness backgrounds the job.** Dogfooding found a double-detached
+  invocation (`&`/`disown` inside a `run_in_background` Bash) where Claude Code
+  tracked a wrapper that exited immediately and sent a false completion while Codex
+  kept running orphaned; fire now makes tool-level backgrounding the only
+  backgrounding.
+  Source: [sous-chef#5](https://github.com/tomascupr/sous-chef/issues/5).
 - Paced progress ticks compose with detach-and-notify rather than reverting to
   polling: the [#54143](https://github.com/anthropics/claude-code/issues/54143)
   failure mode is an unbounded polling loop, while a ticker is
@@ -332,6 +338,12 @@ doc, or a measured comparison - collected via a multi-source research sweep on
 - Findings persist at per-job paths (`$JOB/findings.md`), never a fixed "latest"
   path - fire's stale-fixed-path rule (fixed paths serve stale results as fresh
   successes) applies to the orchestrator's own artifacts too.
+- **Plating checks path ownership, not just diffs.** A dogfooding fire overlapped with
+  a second Claude Code session; disjoint files showed up in the baseline-aware diff,
+  but overlapping edits would have become one confusing merged delta. Fire/refire now
+  compare post-baseline paths to the ticket's `<files>` list and exclude outside paths
+  from worker attribution.
+  Source: [sous-chef#5](https://github.com/tomascupr/sous-chef/issues/5).
 
 ## The Karpathy grounding
 

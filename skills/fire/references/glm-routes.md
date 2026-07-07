@@ -5,6 +5,10 @@ configures one (or both); fire uses whichever is installed. The ticket, the pref
 the announce-to-user step, and the per-job directory (`$JOB`) are identical to a
 normal fire - only the worker invocation changes.
 
+The Bash tool's `run_in_background: true` is still the only backgrounding: do not add
+`&`, `nohup`, or `disown` inside either command, or the harness can report false
+completion while the worker keeps running.
+
 ## Route A - Claude Code headless as the GLM worker (coding-plan quota)
 
 Z.ai officially supports Claude Code on the GLM Coding Plan; running it headless with

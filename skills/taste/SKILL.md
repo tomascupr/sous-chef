@@ -38,6 +38,8 @@ env -u CODEX_API_KEY -u CODEX_ACCESS_TOKEN codex exec --profile sous-chef --sand
   - < "$JOB/review-prompt.md" > "$JOB/job.log" 2>&1
 ```
 
+Same backgrounding rule as fire: do not put `&`, `nohup`, or `disown` inside the command, or the harness can report false completion while Codex is still running.
+
 `--sandbox read-only` overrides the profile's workspace-write - CLI flags beat profile settings. The reviewer must not be able to "fix" anything; review and implementation stay separate roles.
 
 Tell the user the review is running, that it can take several minutes on a real diff, and where the log lives. Do not poll while it runs.

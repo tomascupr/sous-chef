@@ -54,6 +54,9 @@ dirs still hold the work.)
    findings, one scoped fix run, then re-verify each finding at its cited location.
 4. **Plate** - run the verification commands one final time and serve.
 
+Stage transitions inherit fire/refire's changed-files-vs-`<files>` concurrent-edit
+check; outside-list paths are named, warned, and excluded from the stage delta.
+
 ## Autonomy contract
 
 - Announce ONCE before stage 1: the task, the model, and that this is a full serve
