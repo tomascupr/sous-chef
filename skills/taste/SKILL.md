@@ -56,7 +56,7 @@ Then, for EACH finding:
 2. Label it CONFIRMED (you verified the failure scenario is real) or REFUTED (state why - guard exists upstream, dead path, intentional per repo conventions, wrong about the API).
 3. Drop REFUTED findings from the main report; mention only their count.
 
-Then write the CONFIRMED set to `$JOB/findings.md`: a header line (verdict, scope, refuted count), then one block per finding - severity, file:line, the defect in one sentence, the quoted evidence, the prescribed fix. Write it even when clean (`CONFIRMED: none`) so a clean taste is distinguishable from no taste. This file is the handoff to `/sous-chef:refire` - validated once, carried on disk, never reconstructed from memory.
+Then write the CONFIRMED set to `$JOB/findings.md`: a header line (verdict, scope, refuted count), then one block per finding - severity, file:line, the defect in one sentence, the quoted evidence, the prescribed fix. Add a tree anchor to the header - `tree: $(git rev-parse --short HEAD)+$(idx=$(mktemp -u); GIT_INDEX_FILE=$idx git add -A && GIT_INDEX_FILE=$idx git write-tree | cut -c1-12)` (the temp-index write-tree makes untracked files count - a fire's newly created files are exactly what findings cite) - so a later refire can tell whether these file:line citations still describe the tree it is about to fire into. Write the file even when clean (`CONFIRMED: none`) so a clean taste is distinguishable from no taste. This file is the handoff to `/sous-chef:refire` - validated once, carried on disk, never reconstructed from memory.
 
 ## 4. Report
 

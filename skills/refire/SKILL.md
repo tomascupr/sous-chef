@@ -34,6 +34,13 @@ Same as fire, and for the same reasons:
    baseline. The tree is usually dirty here (it holds the diff that was just tasted);
    that is expected; the baseline is what separates the tasted diff from the refire's
    changes.
+5. Anchor check: recompute
+   `$(git rev-parse --short HEAD)+$(idx=$(mktemp -u); GIT_INDEX_FILE=$idx git add -A && GIT_INDEX_FILE=$idx git write-tree | cut -c1-12)`
+   and compare it to the `tree:` line in the findings' header. On mismatch - or no
+   `tree:` line at all - the tree has moved since the taste and the cited line numbers
+   may have drifted: say so, then treat the file as an unvalidated review (the Inputs
+   rule above) - revalidate each finding at its cited location before writing the
+   ticket, dropping any that no longer hold.
 
 ## The refire ticket
 
