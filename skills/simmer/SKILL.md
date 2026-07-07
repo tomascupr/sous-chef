@@ -38,7 +38,8 @@ before lap 1 (simmer creates a branch and makes commits - say so):
 
 Add `.sous-chef/` to `$(git rev-parse --git-path info/exclude)` if it isn't there
 yet, then write the contract (goal, check commands, budget, branch with its base
-commit, and the UTC start time) to
+commit, and the UTC start time as a `started:` line - the receipt reads it back for
+wallclock, same field name as serve's state.md) to
 `.sous-chef/loop.md` and create `.sous-chef/progress.md`. The state survives session
 restarts because it lives in the repo; the ignore keeps it out of diffs, checkpoint
 commits, and the no-progress guard.
