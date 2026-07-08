@@ -79,7 +79,7 @@ you ── "/sous-chef:serve migrate auth" ──▶ CLAUDE (head chef)
                                 ▼ diff
             CLAUDE reviews + re-runs verification itself
                                 ▼
-            CODEX cross-reviews read-only ──▶ CLAUDE validates findings
+            CODEX reviews read-only, fresh context ──▶ CLAUDE validates findings
                                 ▼
             confirmed findings refired once ──▶ verified ──▶ served
 ```

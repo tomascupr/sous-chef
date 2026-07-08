@@ -40,9 +40,13 @@ dirs still hold the work.)
 
 If the arguments begin with `--with <worker>` (see fire's worker table), the
 choice applies to the whole line: fire and refire run on that worker; taste
-stays on Codex read-only when available so the review remains cross-model -
-if worker and reviewer end up being the same lineage, say so in the report.
-Record the worker in `state.md` (`worker: sonnet`).
+stays on Codex read-only when available, which makes the review cross-model
+when the worker is not Codex. Record the worker in `state.md` (`worker: sonnet`).
+
+Whenever implementer and reviewer share a lineage, say so in the final report.
+The default all-Codex line always does: Codex reviews its own diff (fresh
+context - `codex exec` carries no session memory - but same lineage), so
+Claude's validation pass is the only cross-model check in that run.
 
 ## The pipeline
 
