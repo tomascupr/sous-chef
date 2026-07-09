@@ -201,6 +201,36 @@ doc, or a measured comparison - collected via a multi-source research sweep on
   prompt can't guarantee), and the review-to-fix boundary is exactly where a human can
   step in à la carte - or not, inside a `/serve` they ordered.
 
+## Why confirmed findings persist (the 86 list)
+
+- **Validation is the expensive step, and its output is the only verified signal in the
+  pipeline.** `/taste` runs a full cross-model review, then Claude re-checks every finding
+  against the code; `/refire` fixes the confirmed ones and re-verifies each at its cited
+  location. That chain is what separates a real defect from an over-flag (see "Why
+  `/taste` validates findings before presenting them" above). Today the result is thrown
+  away when the serve ends - the next `codex exec` is a fresh context with no memory, so
+  the repo relearns the same lesson every time. The 86 list (`.sous-chef/86.md`,
+  restaurant slang for "struck from the menu") persists exactly that verified signal: fire
+  injects it into the ticket so the worker is warned off known patterns, taste injects it
+  as a secondary focus so the reviewer checks the delta against it first.
+- **Only confirmed findings, never raw ones - this is the load-bearing rule.** Raw
+  cross-model reviews over-flag; it is the same field report that motivates taste's
+  validation step (~3 of 20 reviews failed silently, adversarial mode flagged missing
+  circuit breakers on a 500-line cron script -
+  [mejba.me](https://www.mejba.me/blog/codex-plugin-claude-code-adversarial-review)).
+  Persisting raw findings would bake that noise into every future ticket and review prompt
+  permanently. So the list is written in exactly one place - `/refire`, after
+  re-verification proves the defect was real and is now gone - and never from taste output
+  directly. The list biases attention; it never lowers the evidence bar that
+  `<grounding_rules>` sets.
+- **Brevity is a correctness property, not style.** The file is injected verbatim into
+  fire tickets and taste prompts, so it is priced like always-on context: one line per
+  entry, a hard cap of 15, patterns generalized from the instance ("silent catch blocks in
+  async handlers", not "line 42 of foo.ts") and deduped by bumping a date rather than
+  appending. Same deletion discipline the CLAUDE.md philosophy section below applies to
+  standing instructions - keep only what changes behavior. Committed to the repo like
+  `AGENTS.md`: a team asset, one file, read by both models.
+
 ## Why fast mode is surfaced, not inherited silently
 
 - Codex fast mode ("Fast mode increases supported model speed by 1.5x and consumes

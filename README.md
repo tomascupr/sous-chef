@@ -108,6 +108,13 @@ so the Bash timeout ceiling can't kill them mid-job, and completion re-invokes C
 **Claims are not evidence.** After every delegated run, Claude reviews the diff line
 by line and re-runs the verification commands itself.
 
+**The 86 list.** "86'd" is kitchen slang for struck from the menu. `.sous-chef/86.md`
+is a committed, per-repo list of the patterns past reviews confirmed as defects here;
+fire injects it into the ticket's constraints and taste into the review prompt, so the
+worker stops reintroducing them and the reviewer knows where to look. Only
+confirmed-and-fixed findings are ever written to it - never raw review output. Why it
+persists: [docs/design.md](docs/design.md#why-confirmed-findings-persist-the-86-list).
+
 ## The receipts
 
 Every load-bearing decision traces to a documented incident, an official doc, or a

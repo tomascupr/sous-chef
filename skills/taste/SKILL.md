@@ -29,7 +29,7 @@ git diff --shortstat && git diff --shortstat --cached
 
 ## 2. Run the review - read-only, in the background
 
-Mint a job dir (`JOB=$(mktemp -d "$SCRATCHPAD/taste-XXXXXX")`, where `$SCRATCHPAD` is your session scratchpad directory - substitute its absolute path). Build the review prompt from [references/review-prompt.md](references/review-prompt.md), filling in the diff scope and any focus the user gave, then:
+Mint a job dir (`JOB=$(mktemp -d "$SCRATCHPAD/taste-XXXXXX")`, where `$SCRATCHPAD` is your session scratchpad directory - substitute its absolute path). Build the review prompt from [references/review-prompt.md](references/review-prompt.md), filling in the diff scope and any focus the user gave. If `.sous-chef/86.md` exists and has entries, paste them verbatim into the reference file's `<known_failure_modes>` slot - the repo's 86 list, the patterns past taste/refire cycles confirmed as defects here, offered as a secondary focus so the reviewer checks the delta against them first. It biases attention only; findings still need grounding per `<grounding_rules>`, and the list never lowers that bar. Then:
 
 ```
 Bash (run_in_background: true), cwd = repo root:

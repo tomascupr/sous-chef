@@ -80,6 +80,33 @@ sandbox banner):
 4. For risky diffs, offer a confirmation `/sous-chef:taste`; two clean models in a row
    is the strongest ship signal this kitchen produces.
 
+## The 86 list - make the confirmed defect persistent
+
+"86'd" is kitchen slang for struck from the menu. `.sous-chef/86.md` is this repo's 86
+list: patterns confirmed as defects here by past taste/refire cycles, committed like
+`AGENTS.md`. Fire injects it into new tickets and taste into review prompts, so the next
+worker stops reintroducing them and the next reviewer knows where to look. It is the only
+place a validated finding outlives the serve that found it.
+
+Write to it ONLY from findings that cleared step 1 above - re-verified real, then fixed.
+Never from raw taste output; the re-verification is the evidence bar, and the list records
+only what passed it. This is the load-bearing rule of the whole feature. For each finding
+you just confirmed and resolved:
+
+1. **Generalize the pattern from the instance** - "silent catch blocks swallowing errors
+   in async handlers", not "line 42 of foo.ts". The next run breaks at a different line.
+2. **Append one line** to `.sous-chef/86.md`, creating the file (and `.sous-chef/`) if
+   absent:
+   `- [YYYY-MM-DD] <one-line pattern> (evidence: file:line, <serve or task ref>)`
+3. **Dedupe:** if an equivalent pattern is already listed, bump its date instead of
+   adding a duplicate.
+4. **Hard cap 15 entries.** If appending would exceed it, drop the oldest entry whose
+   pattern has not recurred (its date was never bumped). One line per entry is a
+   correctness property, not style - this file is injected verbatim into fire tickets and
+   taste prompts, so brevity keeps it cheap to carry.
+
+Commit `.sous-chef/86.md` alongside the fix; it is a team asset, not a scratch file.
+
 ## Cap
 
 One refire per taste. If a finding survives its refire, do not loop: fix it yourself

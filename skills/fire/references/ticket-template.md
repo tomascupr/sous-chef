@@ -32,6 +32,10 @@ Do NOT touch:
 - Match the existing style and patterns of the surrounding code.
 - No new dependencies unless listed here: [none / list]
 - [Project-specific hard rules]
+<!-- Include the block below ONLY if .sous-chef/86.md has entries; paste them verbatim,
+     one per line. Delete this comment and the two lines below it otherwise. -->
+- 86'd in this repo - do not reintroduce:
+  - [YYYY-MM-DD] <pattern copied from .sous-chef/86.md>
 </constraints>
 
 <verification>

@@ -69,6 +69,8 @@ Claude's validation pass is the only cross-model check in that run.
 Stage transitions inherit fire/refire's changed-files-vs-`<files>` concurrent-edit
 check; outside-list paths are named, warned, and excluded from the stage delta.
 
+The repo's 86 list travels through the pass: fire (stage 1) reads `.sous-chef/86.md` into the ticket's constraints, and refire (stage 3) appends each newly confirmed-and-fixed finding back to it - so a serve leaves the repo warned against its own defects.
+
 ## Autonomy contract
 
 - Announce ONCE before stage 1: the task, the model, and that this is a full serve

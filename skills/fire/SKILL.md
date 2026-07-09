@@ -49,6 +49,8 @@ Write the ticket to `$JOB/ticket.md` using the template in [references/ticket-te
 - `<follow_through>` - the default when routine questions come up: keep going, make the reasonable choice, record it; stop only on hard blockers.
 - `<action_safety>` - stay narrow; no unrelated refactors; no deleting code it doesn't understand.
 
+Before finishing `<constraints>`, read `.sous-chef/86.md` if it exists and is non-empty. It is this repo's **86 list** - patterns that past taste/refire cycles confirmed as defects here (see `/sous-chef:refire`). Copy its entries verbatim into `<constraints>` under a line reading "86'd in this repo - do not reintroduce:", so the fresh worker starts already warned off them. Skip the block entirely if the file is absent or has no entries.
+
 Repo-level standards (build commands, conventions, do-not-touch areas) belong in the repo's `AGENTS.md`, which Codex reads automatically on every run - don't duplicate them on the ticket. Run `/sous-chef:mise` once per repo to set that up.
 
 ## Choosing the worker - `--with`

@@ -24,6 +24,17 @@ flag their absence. Flag only issues that would cause real defects, data loss, s
 problems, or maintenance pain in THIS codebase as it exists.
 </calibration>
 
+<known_failure_modes>
+<!-- Optional - include ONLY if .sous-chef/86.md has entries; paste them verbatim, one
+     per line, in place of the placeholder. Delete this whole block otherwise. -->
+Known failure modes in this repo, confirmed as defects by past reviews - check the delta
+against these first:
+- [YYYY-MM-DD] <pattern copied from .sous-chef/86.md>
+These bias where you look; they do not lower the bar. Every finding still needs grounding
+per <grounding_rules> - do not report one of these unless you can anchor it to a specific
+location in the delta under review.
+</known_failure_modes>
+
 <structured_output_contract>
 Your final message must be exactly:
 

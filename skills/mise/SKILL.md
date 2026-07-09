@@ -76,6 +76,13 @@ Codex rebuilds its instruction chain from `AGENTS.md` on every run, including no
 - If the current repo has no root `AGENTS.md`: offer to create one from `${CLAUDE_PLUGIN_ROOT}/templates/AGENTS.template.md`, filled in from what you can read in the repo (real build/test/lint commands, real entry points - verify each command exists in package.json/Makefile/pyproject before writing it).
 - If `AGENTS.md` exists: leave it.
 - Bridge it for Claude: the repo's `CLAUDE.md` should contain the line `@AGENTS.md` so both models read the same standards. Add the line (or create a minimal CLAUDE.md containing it) with the user's OK. A symlink `CLAUDE.md -> AGENTS.md` also works if there's no Claude-specific content.
+- The **86 list** (`.sous-chef/86.md`): this repo's running list of defect patterns confirmed by past taste/refire cycles, committed like `AGENTS.md` and read into every fire ticket and taste prompt. Refire creates it on the first confirmed finding, so there's nothing to fill in now - but offer to scaffold the file with just its format header so the team sees the convention, and make sure `.sous-chef/` isn't gitignored, since the list only works as a committed team asset. The header (a comment, so the read paths inject no entries from it):
+
+  ```
+  <!-- 86 list: patterns confirmed as defects in this repo by past taste/refire cycles.
+       One line each - [YYYY-MM-DD] pattern (evidence: file:line, serve/task ref).
+       Written by /sous-chef:refire, read by fire and taste. Max 15 entries. -->
+  ```
 - Note: fire needs a git repo with at least one commit - if this directory isn't one, say so now.
 
 ## 5. Alternate workers (optional second implementer)
