@@ -5,9 +5,9 @@
 # Used as: codex exec --profile sous-chef ...
 #
 # Deliberately minimal: only execution safety lives here. Model and reasoning effort
-# fall through to your ~/.codex/config.toml defaults (recommended: model = "gpt-5.5",
-# model_reasoning_effort = "xhigh"). Per-repo pins belong in a trusted project's
-# .codex/config.toml.
+# fall through to your ~/.codex/config.toml defaults (recommended: model = "gpt-5.6-sol",
+# model_reasoning_effort = "high"; gpt-5.6-terra for 5.5-class output at half the
+# price). Per-repo pins belong in a trusted project's .codex/config.toml.
 
 # Never pause for approval - a delegated run has no human to answer prompts.
 approval_policy = "never"

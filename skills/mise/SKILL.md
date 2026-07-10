@@ -59,8 +59,10 @@ update path when the plugin ships profile changes). The profile intentionally se
 only execution-safety settings (approval policy, sandbox mode, network access) -
 model and reasoning effort fall through to the user's `~/.codex/config.toml`, which
 is where they should live. If the user has no model configured there, suggest
-`model = "gpt-5.5"` and `model_reasoning_effort = "xhigh"` for implementation-grade
-delegation.
+`model = "gpt-5.6-sol"` and `model_reasoning_effort = "high"` for implementation-grade
+delegation (`gpt-5.6-terra` for 5.5-class output at half the API-list price). If
+their config enables 5.6's ultra mode, warn that it multiplies token spend by design
+and should stay off for delegated background runs.
 
 Also check `~/.codex/config.toml` for `service_tier = "fast"`. Fast mode flows into
 delegated background runs and burns credits at 2.5x (GPT-5.5) for a 1.5x speedup -

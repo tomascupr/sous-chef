@@ -37,7 +37,11 @@ halted or budget-spent receipt keeps its numbers and skips the brag. Keep it
 under 280 characters and paste-ready. Its dollar figure is this run's
 measurement; its multiple is the published, receipted benchmark - never compute
 a per-run multiple (the same-token method yields ~1.7x for gpt-5.5 and ~16x for
-GLM-5.2, and the measured counterfactual wasn't run for either). The task line
+GLM-5.2, and the measured counterfactual wasn't run for either). The
+"Benchmarked 10-20x" sentence ships only when the worker is a benchmarked one
+(per prices.md - the issue-#2 benchmark was measured on gpt-5.5); for an
+unbenchmarked worker (the GPT-5.6 tiers, the Sonnet route) drop that sentence
+and keep the first. The task line
 ships verbatim inside it - client names and private context go with it - so
 surface the post for the user to paste; never post anything yourself.
 
