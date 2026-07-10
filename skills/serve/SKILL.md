@@ -85,8 +85,9 @@ check; outside-list paths are named, warned, and excluded from the stage delta.
 - Only interrupt the user for hard blockers: a failed run with an error they must act
   on (auth, quota), verification still red after stage 1's delta (and any surgical
   fix of your own), a finding that survived its refire, or preflight failures.
-- Every safety rule of the underlying skills still applies: background always, never
-  poll, per-job dirs, outcome checks before trusting results, baseline-aware diffs.
+- Every safety rule of the underlying skills still applies: background always (fire's
+  backgrounding rule included - never nest `&`, `nohup`, or `disown` in the command),
+  never poll, per-job dirs, outcome checks before trusting results, baseline-aware diffs.
 - Budget: at most 5 Codex runs total (fire, one delta if needed, taste, refire,
   optional confirmation taste). The count lives in `$RUN/state.md`, not in your
   context. Failed runs and retries count - the budget is quota spend, not useful

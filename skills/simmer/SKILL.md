@@ -67,7 +67,8 @@ the user before starting fresh.
 For each iteration, until the goal passes or the budget is spent:
 
 1. **Fire the worker** - a fresh backgrounded `codex exec` (same invocation pattern as
-   `/sous-chef:fire`, including `env -u CODEX_API_KEY -u CODEX_ACCESS_TOKEN`, `--profile sous-chef`, and a
+   `/sous-chef:fire`, including its backgrounding rule - no `&`, `nohup`, or `disown`
+   inside the command - `env -u CODEX_API_KEY -u CODEX_ACCESS_TOKEN`, `--profile sous-chef`, and a
    fresh per-lap job dir - never reuse result/log paths between laps). The prompt is
    the full contents of `.sous-chef/loop.md` (contract plus lap history) plus: lap
    number, the verbatim failing output from last lap, and the instruction to do ONE

@@ -146,10 +146,11 @@ auto-refresh even mid-run, and fire unsets the two env vars (`CODEX_API_KEY`,
 Delegation overhead is ~5-7k Claude tokens per round trip, which is why small tasks
 stay with Claude.
 
-**How do I see what I'm saving?** Every delegated run reports the worker's token
-count from the job log and appends one JSON line to `~/.sous-chef/ledger.jsonl`.
-`/mise` prints the running tab (jobs to date, tokens kept off Claude), or sum it
-yourself:
+**How do I see what I'm saving?** Codex-route runs report the worker's token
+count from the job log and append one JSON line to `~/.sous-chef/ledger.jsonl`
+(the Claude-worker routes - GLM Route A, Sonnet Route C - emit no token summary,
+so they leave no ledger line). `/mise` prints the running tab (jobs to date,
+tokens kept off Claude), or sum it yourself:
 `jq -s '{jobs: length, tokens: (map(.tokens) | add)}' ~/.sous-chef/ledger.jsonl`.
 Serves and simmers also drop a per-run receipt in `.sous-chef/receipts/` -
 measured tokens, an API-list cost estimate, the diff, the verdict, and a

@@ -1,8 +1,8 @@
 # sous-chef
 
-A Claude Code plugin: Claude (Fable 5) orchestrates and reviews, Codex CLI (GPT-5.5)
-implements. This repo is the plugin itself - there is no build step and no code to
-compile; everything is markdown, JSON, and TOML.
+A Claude Code plugin: Claude (Fable 5) orchestrates and reviews; Sonnet 5, GPT-5.5
+(Codex CLI), or GLM-5.2 implements. This repo is the plugin itself - there is no
+build step and no code to compile; everything is markdown, JSON, and TOML.
 
 ## Map
 
