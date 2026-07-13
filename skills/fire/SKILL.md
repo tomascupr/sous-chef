@@ -69,6 +69,19 @@ every worker; only the invocation changes. Preflight differs per worker:
 step 2's Codex-profile stop applies to the Codex route only - Route C's
 preflight is just `command -v claude`.
 
+## Choosing the tier
+
+Codex route only: if the user's `~/.claude/CLAUDE.md` carries a `Worker tiers (sous-chef`
+block, use the ticket's shape to pick from its table and append
+`-c model=<tier> -c model_reasoning_effort=<effort>` to the `codex exec` invocation.
+CLI `-c` flags beat both the profile and `~/.codex/config.toml`. The one-line
+announcement names the flagged tier plus a one-clause reason instead of reading the
+model from config. With no block, today's config fall-through is unchanged. The
+policy rides wherever this invocation pattern is reused: refire fix runs and simmer
+laps route by their own ticket's shape; taste stays on the config default. The CLI
+does not client-side validate the effort string against the model: the banner's
+`reasoning effort:` line echoes what was requested, not necessarily what ran.
+
 ## Firing
 
 Run from the repo root (workspace-write scopes writes to the working directory), in the background - never in the foreground, where the Bash timeout ceiling kills long runs. Tool-level backgrounding is the only backgrounding: the command itself must NOT contain `&`, `nohup`, or `disown`, or Claude Code will track a wrapper that exits immediately, fire a false completion notification, and leave the real worker orphaned.
@@ -85,7 +98,7 @@ Notes on the invocation:
 - `env -u CODEX_API_KEY -u CODEX_ACCESS_TOKEN` pins the run to the user's `codex login` (ChatGPT subscription) auth - those two are the only env vars that override it in `codex exec`, and if either is set the run silently bills per-token instead. (`OPENAI_API_KEY` is NOT read for auth by current Codex, and unsetting it would break custom providers that use it as their `env_key`.)
 - Prompt goes via stdin (`- <`) to avoid shell-quoting damage to the ticket.
 
-**Then tell the user, in one or two lines:** what was delegated and to which model (read `model` from `~/.codex/config.toml` - don't assert a model you didn't check), that it typically takes 5–20+ minutes at high reasoning effort, a paste-ready `tail -f "$JOB/job.log"` (absolute path) to watch it cook - warning that stray MCP transport noise early in the log is usually harmless, not the run failing - the ticket at `$JOB/ticket.md` for what was ordered, and that they can cancel anytime. Offer progress ticks (below) as a clause they can opt into by replying, not a blocking question.
+**Then tell the user, in one or two lines:** what was delegated and to which model (name the explicitly flagged tier and why when tier policy applies; otherwise read `model` from `~/.codex/config.toml` - don't assert a model you didn't check), that it typically takes 5–20+ minutes at high reasoning effort, a paste-ready `tail -f "$JOB/job.log"` (absolute path) to watch it cook - warning that stray MCP transport noise early in the log is usually harmless, not the run failing - the ticket at `$JOB/ticket.md` for what was ordered, and that they can cancel anytime. Offer progress ticks (below) as a clause they can opt into by replying, not a blocking question.
 
 To route the ticket to GLM-5.2 (user opt-in) or to Claude Sonnet 5 on the user's own subscription (no extra key - the natural fallback when Codex hits its usage limit mid-serve), see [references/glm-routes.md](references/glm-routes.md) - same ticket, different worker invocation.
 

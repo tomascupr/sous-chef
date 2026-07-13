@@ -52,6 +52,13 @@ ANCHOR='$(git rev-parse --short HEAD)+$(idx=$(mktemp -u); GIT_INDEX_FILE=$idx gi
 must_contain skills/taste/SKILL.md  "$ANCHOR" "taste writes the anchor refire recomputes"
 must_contain skills/refire/SKILL.md "$ANCHOR" "refire recomputes the anchor taste writes"
 
+# The optional worker-tier policy heading and CLI mechanism agree with both readers.
+must_contain templates/CLAUDE.tiers.md 'Worker tiers (sous-chef' "the tier policy carries the heading fire and mise detect"
+must_contain skills/fire/SKILL.md 'Worker tiers (sous-chef' "fire detects the tier policy heading the template installs"
+must_contain skills/mise/SKILL.md 'Worker tiers (sous-chef' "mise detects the tier policy heading before offering it"
+must_contain skills/fire/SKILL.md '-c model=' "fire names the CLI flag mechanism the tier policy requires"
+must_contain templates/CLAUDE.tiers.md '-c model=' "the tier policy names the CLI flag mechanism fire honors"
+
 # Every backgrounded worker invocation carries the no-nested-backgrounding rule.
 for f in $(grep -rl 'run_in_background: true' skills/); do
   grep -q 'nohup' "$f" || err "$f backgrounds a worker but drops the no-&/nohup/disown rule"

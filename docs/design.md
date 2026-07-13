@@ -75,6 +75,24 @@ doc, or a measured comparison - collected via a multi-source research sweep on
   opt into knowingly. The one-line announcement survives in both modes; what changes
   is who pulls the trigger.
 
+## Why tier routing is user-side policy
+
+- GPT-5.6 is GA as the `gpt-5.6-sol`, `gpt-5.6-terra`, and `gpt-5.6-luna`
+  family; the task-shape mapping, supported effort ladder through `max`, ultra mode,
+  and a live run of the tier flags through the sous-chef profile are recorded in
+  [issue #11](https://github.com/tomascupr/sous-chef/issues/11).
+- The corresponding GA tier prices are published in OpenAI's
+  [API pricing table](https://developers.openai.com/api/docs/pricing).
+- The shipped profile still pins execution safety rather than model policy, matching
+  OpenAI's plugin guidance to leave model and effort unset by default
+  ([codex-plugin-cc](https://github.com/openai/codex-plugin-cc)); the optional tier
+  table therefore lives in the user's CLAUDE.md and an absent block preserves their
+  Codex defaults.
+- Ultra stays off delegated background runs because it multiplies token spend by
+  design ([issue #11](https://github.com/tomascupr/sous-chef/issues/11)), while an
+  unattended delegation can consume quota without a watcher or useful progress
+  ([anthropics/claude-code#54143](https://github.com/anthropics/claude-code/issues/54143)).
+
 ## Why background-always, polling-never
 
 - [anthropics/claude-code#54143](https://github.com/anthropics/claude-code/issues/54143):

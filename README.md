@@ -177,6 +177,12 @@ Claude kills the job and shows you any partial changes to keep or revert.
 design-ambiguous stay with Claude - the routing rules themselves say so. Delegation
 is announced, never silent - in both routing modes.
 
+**Can worker cost scale with the task?** Yes - `/mise` can optionally append a
+user-side tier policy next to the routing-mode block in `~/.claude/CLAUDE.md`. Fire
+then maps the ticket's existing task-shape classification to sol, terra, or luna and
+passes that choice to Codex for the run. Without the block, model and effort keep
+falling through to your Codex config exactly as before.
+
 **Which models?** Whatever your `~/.codex/config.toml` says - the shipped profile
 pins only sandbox and approval policy. Recommended: `gpt-5.5` with
 `model_reasoning_effort = "xhigh"`. GLM-5.2 ships as an opt-in second implementer
