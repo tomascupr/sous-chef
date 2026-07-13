@@ -57,6 +57,7 @@ must_contain templates/CLAUDE.tiers.md 'Worker tiers (sous-chef' "the tier polic
 must_contain skills/fire/SKILL.md 'Worker tiers (sous-chef' "fire detects the tier policy heading the template installs"
 must_contain skills/mise/SKILL.md 'Worker tiers (sous-chef' "mise detects the tier policy heading before offering it"
 must_contain skills/fire/SKILL.md '-c model=' "fire names the CLI flag mechanism the tier policy requires"
+must_contain templates/CLAUDE.tiers.md '-c model=' "the tier policy names the CLI flag mechanism fire honors"
 
 # Every backgrounded worker invocation carries the no-nested-backgrounding rule.
 for f in $(grep -rl 'run_in_background: true' skills/); do

@@ -76,7 +76,9 @@ block, use the ticket's shape to pick from its table and append
 `-c model=<tier> -c model_reasoning_effort=<effort>` to the `codex exec` invocation.
 CLI `-c` flags beat both the profile and `~/.codex/config.toml`. The one-line
 announcement names the flagged tier plus a one-clause reason instead of reading the
-model from config. With no block, today's config fall-through is unchanged. The CLI
+model from config. With no block, today's config fall-through is unchanged. The
+policy rides wherever this invocation pattern is reused: refire fix runs and simmer
+laps route by their own ticket's shape; taste stays on the config default. The CLI
 does not client-side validate the effort string against the model: the banner's
 `reasoning effort:` line echoes what was requested, not necessarily what ran.
 

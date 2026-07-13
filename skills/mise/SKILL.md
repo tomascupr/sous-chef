@@ -124,10 +124,13 @@ block for the autonomous template so the installed mode matches the answer. Its
 Environment section is placeholder text they must edit to match their machine.
 
 Also grep `~/.claude/CLAUDE.md` for `Worker tiers (sous-chef`. If it is present,
-say tier routing is installed and leave it unchanged. If a routing block exists (or
-was just installed) but no tier block is present, fold one more optional question
-into the batched AskUserQuestion round offering to append
-`${CLAUDE_PLUGIN_ROOT}/templates/CLAUDE.tiers.md`. Never append a duplicate.
+diff the block against `${CLAUDE_PLUGIN_ROOT}/templates/CLAUDE.tiers.md`: identical -
+say tier routing is installed and move on; different - show the diff and ask whether
+to keep theirs or refresh, like the profile in step 3 (this is the update path when
+the plugin ships a new tier table; their edits are policy, so keeping wins on a shrug).
+If a routing block exists (or was just installed) but no tier block is present, fold
+one more optional question into the batched AskUserQuestion round offering to append
+the template. Never append a duplicate.
 
 If the autonomous block was installed, run the follow-ups:
 - Ask before adding `Bash(env -u CODEX_API_KEY -u CODEX_ACCESS_TOKEN codex exec*)` to
